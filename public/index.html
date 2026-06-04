@@ -1051,7 +1051,7 @@ function renderPedidos() {
       '<td style="font-family:var(--mono)">'+(p.lineas||[]).length+'</td>'+
       '<td style="font-family:var(--mono);font-weight:500">'+(total>0?fmt(total)+' €':'—')+'</td>'+
       '<td><span class="badge '+(estadoCls[p.estado]||"badge-low")+'">'+(estadoLabel[p.estado]||p.estado)+'</span></td>'+
-      '<td><button class="btn btn-sm" onclick="verPedido(''+p.id+'')"><i class="ti ti-eye"></i></button></td>'+
+      '<td><button class="btn btn-sm" onclick="verPedido(\''+p.id+'\')"><i class="ti ti-eye"></i></button></td>'+
       '</tr>';
   }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">Sin pedidos</td></tr>';
 }
@@ -1236,7 +1236,7 @@ function renderInventario() {
     return '<tr>'+
       '<td style="font-weight:500">'+p.nombre+'</td>'+
       '<td style="font-family:var(--mono)">'+fmt(teorico)+' '+p.unidad+'</td>'+
-      '<td><input type="number" id="inv-rec-'+p.id+'" value="'+(recuento)+'" min="0" step="0.01" style="width:90px" placeholder="—" oninput="actualizarRecuento(''+p.id+'')"></td>'+
+      '<td><input type="number" id="inv-rec-'+p.id+'" value="'+(recuento)+'" min="0" step="0.01" style="width:90px" placeholder="—" oninput="actualizarRecuento(this.dataset.pid)" data-pid="'+p.id+'">"></td>'+
       '<td style="font-family:var(--mono);font-weight:500;color:'+(diff===null?'var(--text3)':diff<0?'var(--danger)':diff>0?'var(--warn)':'var(--success)')+'">'+(diff===null?'—':(diff>=0?'+':'')+fmt(diff)+' '+p.unidad)+'</td>'+
       '<td style="font-family:var(--mono);font-size:12px;color:'+(valDiff===null?'var(--text3)':valDiff<0?'var(--danger)':'var(--warn)')+'">'+(valDiff===null?'—':(valDiff>=0?'+':'')+fmt(valDiff)+' €')+'</td>'+
       '</tr>';
