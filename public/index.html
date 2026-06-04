@@ -92,7 +92,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .stock-almacen{display:flex;gap:6px;flex-wrap:wrap}
 .stock-pill{padding:2px 8px;border-radius:20px;font-size:11px;font-family:var(--mono)}
 </style>
-</head>
+
+<script>
+var _navQueue=[];
+function nav(id,btn){if(window._navImpl){window._navImpl(id,btn);}else{_navQueue.push([id,btn]);}}
+</script></head>
 <body>
 <div class="layout">
   <aside class="sidebar">
@@ -547,6 +551,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 
 <div class="toast" id="toast"></div>
 
+
 <script>
 const ALMACENES = ['central','cocina','restaurante'];
 const ALM_LABEL = {central:'Central',cocina:'Cocina',restaurante:'Restaurante'};
@@ -613,7 +618,7 @@ loadState();
 const pageTitles={dashboard:'Panel general',productos:'Productos',lotes:'Lotes y caducidades',movimientos:'Mover mercancía',albaran:'Leer albarán IA',entrada:'Entrada manual',albaranes:'Registro de albaranes',pedidos:'Pedidos a proveedores',pedido:'Auto-pedido',inventario:'Inventarios',proveedores:'Proveedores',precios:'Historial de precios',config:'Configuración'};
 const pageSubs={dashboard:'Resumen del economato',productos:'Catálogo con stock por almacén',lotes:'Control de caducidades',movimientos:'Traslados entre almacenes',albaran:'Escanea y registra automáticamente',entrada:'Registra mercancía manualmente',albaranes:'Historial de albaranes recibidos',pedidos:'Crea y gestiona pedidos a proveedores',pedido:'Genera pedidos automáticos por stock mínimo',inventario:'Recuento y ajuste de stock real',proveedores:'Directorio de proveedores',precios:'Evolución histórica de precios',config:'Ajustes del sistema'};
 
-function nav(id,btn){
+function _navImpl(id,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('sec-'+id).classList.add('active');
@@ -1324,6 +1329,9 @@ function clearData(){localStorage.removeItem('economato_v3');location.reload();}
 
 // INIT
 document.addEventListener('DOMContentLoaded', function(){
+  window._navImpl=_navImpl;
+  _navQueue.forEach(function(a){_navImpl(a[0],a[1]);});
+  _navQueue=[];
   if(!state.pedidos) state.pedidos=[];
   if(!state.inventarios) state.inventarios=[];
   document.getElementById('today-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
