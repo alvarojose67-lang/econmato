@@ -610,9 +610,36 @@ let state = {
   ]
 };
 
-function saveState(){try{localStorage.setItem('economato_v3',JSON.stringify(state));}catch(e){}}
-function loadState(){try{const d=localStorage.getItem('economato_v3');if(d)state=JSON.parse(d);}catch(e){}}
-loadState();
+async function saveState(){
+  // Legacy - DB is updated via specific API calls below
+}
+async function apiPost(url, data){
+  try{ await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); }
+  catch(e){ console.error('API error:', url, e); }
+}
+async function apiPut(url, data){
+  try{ await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); }
+  catch(e){ console.error('API error:', url, e); }
+}
+async function apiDelete(url){
+  try{ await fetch(url,{method:'DELETE'}); }
+  catch(e){ console.error('API error:', url, e); }
+}
+async function loadState(){
+  try {
+    const r = await fetch('/api/load');
+    const data = await r.json();
+    if(data.productos) state.productos = data.productos;
+    if(data.proveedores) state.proveedores = data.proveedores;
+    if(data.albaranes) state.albaranes = data.albaranes;
+    if(data.pedidos) state.pedidos = data.pedidos;
+    if(data.lotes) state.lotes = data.lotes;
+    if(data.movimientos) state.movimientos = data.movimientos;
+    if(data.precios) state.precios = data.precios;
+    if(data.inventarios) state.inventarios = data.inventarios;
+    if(data.config) state.config = data.config;
+  } catch(e) { console.error('Error loading state:', e); }
+}
 
 // NAV
 const pageTitles={dashboard:'Panel general',productos:'Productos',lotes:'Lotes y caducidades',movimientos:'Mover mercancía',albaran:'Leer albarán IA',entrada:'Entrada manual',albaranes:'Registro de albaranes',pedidos:'Pedidos a proveedores',pedido:'Auto-pedido',inventario:'Inventarios',proveedores:'Proveedores',precios:'Historial de precios',config:'Configuración'};
@@ -743,13 +770,13 @@ function actualizarProducto(){
   p.precioFijo=parseFloat(document.getElementById('ep-precio').value)||0;
   p.iva=parseInt(document.getElementById('ep-iva').value)||10;
   p.proveedor=document.getElementById('ep-proveedor').value.trim();
-  saveState();closeModal('modal-edit-producto');renderProductos();toast('Producto actualizado');
+  await apiPost('/api/productos',p);closeModal('modal-edit-producto');renderProductos();toast('Producto actualizado');
 }
 
 function eliminarProducto(id){
   if(!confirm('¿Eliminar?'))return;
   state.productos=state.productos.filter(p=>p.id!==id);
-  saveState();renderProductos();toast('Eliminado');
+  await apiDelete('/api/productos/'+id);renderProductos();toast('Eliminado');
 }
 
 // LOTES
@@ -883,7 +910,20 @@ function confirmarAlbaran(){
   if(lineasAlb.length>0){
     state.albaranes.push({id:uid(),fecha:fechaInput,numero,proveedor,almacen,lineas:lineasAlb});
   }
-  saveState();resetAlbaran();toast('Albarán registrado. Stock actualizado.');
+  // Save to DB
+  for(const p of state.productos){ await apiPost('/api/productos',p); }
+  if(lineasAlb.length>0){
+    const albId=state.albaranes[state.albaranes.length-1];
+    if(albId) await apiPost('/api/albaranes',albId);
+  }
+  // Save new precios and movimientos
+  const newPrecios=state.precios.filter(p=>p.fecha===fechaInput&&p.albaran===numero);
+  for(const p of newPrecios) await apiPost('/api/precios',p);
+  const newMovs=state.movimientos.slice(0,lineasAlb.length);
+  for(const m of newMovs) await apiPost('/api/movimientos',m);
+  const newLotes=state.lotes.slice(-lineasAlb.length);
+  for(const l of newLotes) await apiPost('/api/lotes',l);
+  resetAlbaran();toast('Albarán registrado. Stock actualizado.');
 }
 
 function resetAlbaran(){document.getElementById('alb-result').style.display='none';document.getElementById('alb-preview').style.display='none';document.getElementById('alb-error').style.display='none';document.getElementById('alb-file').value='';window._albaranCount=0;}
@@ -1122,8 +1162,8 @@ function guardarPedido() {
   });
   if(!lineas.length){toast('Añade al menos un producto','error');return;}
   if(!state.pedidos) state.pedidos = [];
-  state.pedidos.push({id:uid(),fecha,proveedor,almacen,notas,estado:'pendiente',lineas});
-  saveState();
+  const np={id:uid(),fecha,proveedor,almacen,notas,estado:'pendiente',lineas};state.pedidos.push(np);
+  await apiPost('/api/pedidos',np);
   closeModal('modal-nuevo-pedido');
   pedidoLineas=[{}];
   renderPedidos();
@@ -1285,7 +1325,7 @@ function guardarInventario() {
     setStockAlmacen(p,invAlmacen,real);
     if(diff!==0) state.movimientos.unshift({fecha,producto:p.nombre,tipo:'Ajuste inventario',cant:(diff>=0?'+':'')+fmt(diff)+' '+p.unidad,desde:ALM_LABEL[invAlmacen],hasta:invAlmacen,usuario});
   });
-  state.inventarios.push({id:uid(),fecha,almacen:invAlmacen,lineas,totalDiff,totalVal,usuario});
+  const inv={id:uid(),fecha,almacen:invAlmacen,lineas,totalDiff,totalVal,usuario};state.inventarios.push(inv);await apiPost('/api/inventarios',inv);
   saveState();
   invRecuentos={};
   renderInventario();
@@ -1323,18 +1363,21 @@ function imprimirInventario() {
 }
 
 // CONFIG
-function saveConfig(){state.config.hotel=document.getElementById('cfg-hotel').value;state.config.cadDias=parseInt(document.getElementById('cfg-cad-dias').value)||7;state.config.usuario=document.getElementById('cfg-usuario').value;saveState();toast('Configuración guardada');}
+function saveConfig(){state.config.hotel=document.getElementById('cfg-hotel').value;state.config.cadDias=parseInt(document.getElementById('cfg-cad-dias').value)||7;state.config.usuario=document.getElementById('cfg-usuario').value;await apiPost('/api/config',{hotel:state.config.hotel,cad_dias:state.config.cadDias,usuario:state.config.usuario});toast('Configuración guardada');}
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='economato_backup.json';a.click();}
 function clearData(){localStorage.removeItem('economato_v3');location.reload();}
 
 // INIT
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', async function(){
   window._navImpl=_navImpl;
   _navQueue.forEach(function(a){_navImpl(a[0],a[1]);});
   _navQueue=[];
-  if(!state.pedidos) state.pedidos=[];
-  if(!state.inventarios) state.inventarios=[];
   document.getElementById('today-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  await loadState();
+  const oldData=localStorage.getItem('economato_v3');
+  if(oldData){try{const od=JSON.parse(oldData);if(od.productos&&od.productos.length>0&&state.productos.length===0){await fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(od)});await loadState();localStorage.removeItem('economato_v3');toast('Datos migrados a la base de datos');}}catch(e){}}
+  if(!state.pedidos)state.pedidos=[];
+  if(!state.inventarios)state.inventarios=[];
   renderDashboard();
 });
 </script>
