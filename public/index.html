@@ -1323,10 +1323,12 @@ function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'
 function clearData(){localStorage.removeItem('economato_v3');location.reload();}
 
 // INIT
-if(!state.pedidos) state.pedidos=[];
-if(!state.inventarios) state.inventarios=[];
-document.getElementById('today-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
-renderDashboard();
+document.addEventListener('DOMContentLoaded', function(){
+  if(!state.pedidos) state.pedidos=[];
+  if(!state.inventarios) state.inventarios=[];
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  renderDashboard();
+});
 </script>
 </body>
 </html>
