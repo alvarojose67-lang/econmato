@@ -900,7 +900,7 @@ function renderPrecios(){
     const idx = hist.lastIndexOf(p.precio);
     const prev = idx>0?hist[idx-1]:null;
     let varHtml = '—';
-    if(prev!==null){ const diff=p.precio-prev; const pct=(diff/prev*100).toFixed(1); varHtml=`<span style="color:${diff>0?'var(--danger)':diff<0?'var(--success)':'var(--text3)';}">${diff>0?'↑':'↓'} ${Math.abs(pct)}%</span>`; }
+    if(prev!==null){ const diff=p.precio-prev; const pct=(diff/prev*100).toFixed(1); varHtml=`<span style="color:${diff>0?'var(--danger)':diff<0?'var(--success)':'var(--text3)'}">${diff>0?'↑':'↓'} ${Math.abs(pct)}%</span>`; }
     const prod = state.productos.find(x=>x.id===p.prodId);
     return `<tr>
       <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">${fmtDate(p.fecha)}</td>
