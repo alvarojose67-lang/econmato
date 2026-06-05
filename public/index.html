@@ -1,1385 +1,435 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Economato — Hotel Cortijo Chico</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<style>
-:root{--bg:#F5F3EE;--surface:#FFFFFF;--surface2:#EDEBE6;--border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.06);--text:#1A1A18;--text2:#6B6B65;--text3:#9B9B94;--accent:#2D5A3D;--accent-light:#E8F0EA;--accent-text:#1A3D26;--warn:#92500A;--warn-bg:#FEF3E2;--danger:#8B1F1F;--danger-bg:#FDEAEA;--success:#1A5C2E;--success-bg:#E8F5ED;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--radius:10px;--radius-sm:6px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
-.layout{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
-.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border2)}
-.sidebar-logo .hotel{font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px}
-.sidebar-logo .app{font-size:18px;font-weight:600;color:var(--text)}
-.sidebar-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;font-weight:400;transition:all 0.15s;border:none;background:transparent;width:100%;text-align:left}
-.nav-item i{font-size:17px;flex-shrink:0}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:var(--accent);color:#fff;font-weight:500}
-.nav-section{font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;padding:12px 12px 4px;margin-top:4px}
-.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border2)}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border2);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.topbar-title{font-size:15px;font-weight:600}
-.topbar-sub{font-size:12px;color:var(--text3);margin-top:1px}
-.content{padding:28px;flex:1}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all 0.15s;font-family:var(--sans)}
-.btn:hover{background:var(--surface2)}
-.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-primary:hover{background:#245031}
-.btn-sm{padding:5px 10px;font-size:12px}
-.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:rgba(139,31,31,0.2)}
-.btn-warn{background:var(--warn-bg);color:var(--warn);border-color:rgba(146,80,10,0.2)}
-.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px}
-.card-title{font-size:13px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
-.metric{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 18px}
-.metric-label{font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px}
-.metric-value{font-size:24px;font-weight:600;line-height:1}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border2);font-weight:500}
-td{padding:9px 12px;border-bottom:1px solid var(--border2);font-size:13px;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--surface2)}
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;font-family:var(--mono)}
-.badge-ok{background:var(--success-bg);color:var(--success)}
-.badge-low{background:var(--warn-bg);color:var(--warn)}
-.badge-critical{background:var(--danger-bg);color:var(--danger)}
-.badge-info{background:var(--accent-light);color:var(--accent-text)}
-.badge-central{background:#E8F0EA;color:#1A3D26}
-.badge-cocina{background:#FEF3E2;color:#92500A}
-.badge-restaurante{background:#E6F1FB;color:#185FA5}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
-input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:8px 11px;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-family:var(--sans);transition:border 0.15s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
-.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.alert-warn{background:var(--warn-bg);color:var(--warn)}
-.alert-success{background:var(--success-bg);color:var(--success)}
-.alert-info{background:var(--accent-light);color:var(--accent-text)}
-.alert-danger{background:var(--danger-bg);color:var(--danger)}
-.section{display:none}.section.active{display:block}
-.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text3)}
-.upload-zone:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
-.upload-zone i{font-size:40px;display:block;margin-bottom:10px}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.stock-bar{display:inline-flex;width:60px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;vertical-align:middle;margin-right:6px}
-.stock-fill{height:100%;border-radius:3px}
-.qty-ctrl{display:inline-flex;align-items:center;gap:4px}
-.qty-btn{width:22px;height:22px;border:1px solid var(--border);border-radius:4px;background:var(--surface);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
-.qty-btn:hover{background:var(--surface2)}
-.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;background:var(--surface2);color:var(--text2);font-family:var(--mono)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
-.modal-lg{max-width:860px}
-.modal-title{font-size:16px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
-.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3)}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border2)}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.row-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border2);margin-bottom:20px}
-.tab{padding:8px 14px;font-size:13px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:400;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans)}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;z-index:999;display:flex;align-items:center;gap:8px;opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none}
-.toast.show{opacity:1;transform:translateY(0)}
-.stock-almacen{display:flex;gap:6px;flex-wrap:wrap}
-.stock-pill{padding:2px 8px;border-radius:20px;font-size:11px;font-family:var(--mono)}
-</style>
+const express = require('express');
+const multer = require('multer');
+const Anthropic = require('@anthropic-ai/sdk');
+const { Pool } = require('pg');
+const path = require('path');
 
-<script>
-var _navQueue=[];
-function nav(id,btn){if(window._navImpl){window._navImpl(id,btn);}else{_navQueue.push([id,btn]);}}
-</script></head>
-<body>
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="hotel">Hotel Cortijo Chico</div>
-      <div class="app">Economato</div>
-    </div>
-    <nav class="sidebar-nav">
-      <button class="nav-item active" onclick="nav('dashboard',this)"><i class="ti ti-layout-dashboard"></i>Panel</button>
-      <div class="nav-section">Inventario</div>
-      <button class="nav-item" onclick="nav('productos',this)"><i class="ti ti-packages"></i>Productos</button>
-      <button class="nav-item" onclick="nav('lotes',this)"><i class="ti ti-tag"></i>Lotes y caducidades</button>
-      <button class="nav-item" onclick="nav('movimientos',this)"><i class="ti ti-arrows-transfer-up"></i>Mover mercancía</button>
-      <div class="nav-section">Compras</div>
-      <button class="nav-item" onclick="nav('albaran',this)"><i class="ti ti-scan"></i>Leer albarán IA</button>
-      <button class="nav-item" onclick="nav('entrada',this)"><i class="ti ti-truck-delivery"></i>Entrada manual</button>
-      <button class="nav-item" onclick="nav('albaranes',this)"><i class="ti ti-file-invoice"></i>Registro albaranes</button>
-      <button class="nav-item" onclick="nav('pedidos',this)"><i class="ti ti-shopping-cart"></i>Pedidos</button>
-      <button class="nav-item" onclick="nav('inventario',this)"><i class="ti ti-clipboard-check"></i>Inventarios</button>
-      <button class="nav-item" onclick="nav('pedido',this)"><i class="ti ti-clipboard-list"></i>Auto-pedido</button>
-      <div class="nav-section">Proveedores</div>
-      <button class="nav-item" onclick="nav('proveedores',this)"><i class="ti ti-building-store"></i>Proveedores</button>
-      <button class="nav-item" onclick="nav('precios',this)"><i class="ti ti-chart-line"></i>Historial precios</button>
-    </nav>
-    <div class="sidebar-bottom">
-      <button class="nav-item" onclick="nav('config',this)"><i class="ti ti-settings"></i>Configuración</button>
-    </div>
-  </aside>
-  <div class="main">
-    <div class="topbar">
-      <div>
-        <div class="topbar-title" id="page-title">Panel general</div>
-        <div class="topbar-sub" id="page-sub">Resumen del economato</div>
-      </div>
-      <div class="row" style="gap:8px">
-        <span id="today-date" style="font-size:12px;font-family:var(--mono);color:var(--text3)"></span>
-        <button class="btn btn-primary btn-sm" onclick="nav('albaran',document.querySelectorAll('.nav-item')[5])"><i class="ti ti-scan"></i>Leer albarán</button>
-      </div>
-    </div>
-    <div class="content">
+const app = express();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-      <!-- DASHBOARD -->
-      <div id="sec-dashboard" class="section active">
-        <div class="metrics" id="dash-metrics"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-          <div class="card">
-            <div class="card-title"><i class="ti ti-alert-triangle" style="color:var(--warn)"></i>Bajo mínimo</div>
-            <table><thead><tr><th>Producto</th><th>Stock total</th><th>Mínimo</th><th>Estado</th></tr></thead><tbody id="dash-low"></tbody></table>
-          </div>
-          <div class="card">
-            <div class="card-title"><i class="ti ti-calendar-x" style="color:var(--danger)"></i>Caducidades próximas</div>
-            <table><thead><tr><th>Producto</th><th>Lote</th><th>Caduca</th><th>Días</th></tr></thead><tbody id="dash-cad"></tbody></table>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title"><i class="ti ti-history"></i>Últimos movimientos</div>
-          <table><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cant.</th><th>De/Para</th><th>Usuario</th></tr></thead><tbody id="dash-mov"></tbody></table>
-        </div>
-      </div>
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
-      <!-- PRODUCTOS -->
-      <div id="sec-productos" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <div class="row" style="gap:8px">
-            <input type="text" id="prod-search" placeholder="Buscar..." style="width:200px" oninput="renderProductos()">
-            <select id="prod-cat" onchange="renderProductos()" style="width:180px">
-              <option value="">Todas las categorías</option>
-              <option>Carnes y pescados</option><option>Lácteos</option><option>Verduras y frutas</option>
-              <option>Bebidas</option><option>Panadería</option><option>Limpieza</option><option>Varios</option>
-            </select>
-          </div>
-          <button class="btn btn-primary" onclick="openModal('modal-producto')"><i class="ti ti-plus"></i>Nuevo producto</button>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Código</th><th>Nombre</th><th>Cat.</th><th>Stock Central</th><th>Stock Cocina</th><th>Stock Rest.</th><th>Mínimo</th><th>Precio fijo</th><th>IVA</th><th>Estado</th><th></th></tr></thead><tbody id="prod-table"></tbody></table>
-        </div>
-      </div>
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-      <!-- LOTES -->
-      <div id="sec-lotes" class="section">
-        <div class="tabs">
-          <button class="tab active" onclick="filterLotes('todos',this)">Todos</button>
-          <button class="tab" onclick="filterLotes('ok',this)">Sin alerta</button>
-          <button class="tab" onclick="filterLotes('prox',this)">Próximos a caducar</button>
-          <button class="tab" onclick="filterLotes('cad',this)">Caducados</button>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Producto</th><th>Lote</th><th>Almacén</th><th>Proveedor</th><th>Entrada</th><th>Caducidad</th><th>Cantidad</th><th>Estado</th></tr></thead><tbody id="lotes-table"></tbody></table>
-        </div>
-      </div>
-
-      <!-- MOVER MERCANCÍA -->
-      <div id="sec-movimientos" class="section">
-        <div class="alert alert-info" style="margin-bottom:16px"><i class="ti ti-info-circle"></i>Registra aquí cuando coges producto de un almacén para llevarlo a otro.</div>
-        <div class="card" style="max-width:620px">
-          <div class="card-title"><i class="ti ti-arrows-transfer-up"></i>Nuevo movimiento entre almacenes</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-            <div class="form-group" style="margin:0"><label>De almacén</label>
-              <select id="mov-desde"><option value="central">Central</option><option value="cocina">Cocina</option><option value="restaurante">Restaurante</option></select>
-            </div>
-            <div class="form-group" style="margin:0"><label>A almacén</label>
-              <select id="mov-hasta"><option value="cocina">Cocina</option><option value="restaurante">Restaurante</option><option value="central">Central</option></select>
-            </div>
-            <div class="form-group" style="margin:0"><label>Fecha</label><input type="date" id="mov-fecha"></div>
-          </div>
-          <div class="row-between" style="margin-bottom:8px">
-            <span style="font-size:12px;font-weight:600;color:var(--text2);font-family:var(--mono);text-transform:uppercase">Productos</span>
-            <button class="btn btn-sm" onclick="addMovRow()"><i class="ti ti-plus"></i>Añadir</button>
-          </div>
-          <table><thead><tr><th>Producto</th><th>Cantidad</th><th></th></tr></thead><tbody id="mov-lineas"></tbody></table>
-          <div style="margin-top:16px;text-align:right">
-            <button class="btn btn-primary" onclick="confirmarMovimiento()"><i class="ti ti-check"></i>Registrar movimiento</button>
-          </div>
-        </div>
-        <div class="card" style="margin-top:16px">
-          <div class="card-title"><i class="ti ti-history"></i>Historial de movimientos</div>
-          <table><thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Desde</th><th>Hasta</th><th>Usuario</th></tr></thead><tbody id="mov-historial"></tbody></table>
-        </div>
-      </div>
-
-      <!-- ALBARÁN IA -->
-      <div id="sec-albaran" class="section">
-        <div class="card" style="max-width:800px">
-          <div class="card-title"><i class="ti ti-scan"></i>Lector de albaranes con IA</div>
-          <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Sube una foto del albarán. La IA extrae productos, cantidades, precios y lotes automáticamente.</p>
-          <div class="upload-zone" onclick="document.getElementById('alb-file').click()" id="upload-zone"
-            ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
-            ondragleave="this.style.borderColor=''"
-            ondrop="handleDrop(event)">
-            <i class="ti ti-photo-up"></i>
-            <div style="font-size:14px;font-weight:500;margin-bottom:4px">Arrastra aquí la foto o haz clic</div>
-            <div style="font-size:12px">JPG, PNG · máx. 10MB</div>
-          </div>
-          <input type="file" id="alb-file" accept="image/*" style="display:none" onchange="readAlbaran(event)">
-          <div id="alb-preview" style="margin-top:14px;display:none">
-            <img id="alb-img" style="max-width:100%;max-height:260px;object-fit:contain;border-radius:var(--radius-sm);border:1px solid var(--border2)">
-          </div>
-          <div id="alb-loading" style="display:none;margin-top:16px">
-            <div class="alert alert-info"><span class="spinner"></span> Analizando albarán con IA...</div>
-          </div>
-          <div id="alb-error" style="display:none;margin-top:16px"></div>
-          <div id="alb-result" style="display:none;margin-top:20px">
-            <div class="alert alert-success"><i class="ti ti-check"></i>Albarán analizado. Revisa y confirma.</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-              <div class="form-group" style="margin:0"><label>Proveedor</label><input type="text" id="alb-proveedor"></div>
-              <div class="form-group" style="margin:0"><label>Nº Albarán</label><input type="text" id="alb-numero"></div>
-              <div class="form-group" style="margin:0"><label>Fecha</label><input type="date" id="alb-fecha"></div>
-              <div class="form-group" style="margin:0"><label>Almacén destino</label>
-                <select id="alb-almacen"><option value="central">Central</option><option value="cocina">Cocina</option><option value="restaurante">Restaurante</option></select>
-              </div>
-            </div>
-            <div style="overflow-x:auto">
-              <table>
-                <thead><tr><th>Código</th><th>Descripción</th><th>Lote</th><th>Caducidad</th><th>Kg/Ud</th><th>Precio/u</th><th>IVA%</th><th>Base imp.</th><th>Total IVA</th></tr></thead>
-                <tbody id="alb-lineas"></tbody>
-              </table>
-            </div>
-            <div id="alb-totales" style="margin-top:12px;text-align:right;font-family:var(--mono);font-size:13px"></div>
-            <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
-              <button class="btn" onclick="resetAlbaran()"><i class="ti ti-x"></i>Cancelar</button>
-              <button class="btn btn-primary" onclick="confirmarAlbaran()"><i class="ti ti-check"></i>Confirmar y guardar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ENTRADA MANUAL -->
-      <div id="sec-entrada" class="section">
-        <div class="card" style="max-width:720px">
-          <div class="card-title"><i class="ti ti-truck-delivery"></i>Entrada manual de mercancía</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-            <div class="form-group" style="margin:0"><label>Proveedor</label><input type="text" id="ent-prov" list="prov-list"><datalist id="prov-list"></datalist></div>
-            <div class="form-group" style="margin:0"><label>Nº Albarán</label><input type="text" id="ent-albaran"></div>
-            <div class="form-group" style="margin:0"><label>Fecha</label><input type="date" id="ent-fecha"></div>
-            <div class="form-group" style="margin:0"><label>Almacén destino</label>
-              <select id="ent-almacen"><option value="central">Central</option><option value="cocina">Cocina</option><option value="restaurante">Restaurante</option></select>
-            </div>
-          </div>
-          <div class="row-between" style="margin-bottom:8px">
-            <span style="font-size:12px;font-weight:600;color:var(--text2);font-family:var(--mono);text-transform:uppercase">Líneas</span>
-            <button class="btn btn-sm" onclick="addEntradaRow()"><i class="ti ti-plus"></i>Añadir</button>
-          </div>
-          <table><thead><tr><th>Producto</th><th>Cantidad</th><th>Lote</th><th>Caducidad</th><th>Precio/u</th><th>IVA%</th><th></th></tr></thead><tbody id="ent-lineas"></tbody></table>
-          <div style="margin-top:16px;text-align:right">
-            <button class="btn btn-primary" onclick="confirmarEntrada()"><i class="ti ti-check"></i>Confirmar entrada</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- REGISTRO ALBARANES -->
-      <div id="sec-albaranes" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <div class="row" style="gap:8px">
-            <input type="text" id="alb-search" placeholder="Buscar proveedor o nº..." style="width:220px" oninput="renderAlbaranes()">
-            <input type="date" id="alb-desde" onchange="renderAlbaranes()" style="width:150px">
-            <input type="date" id="alb-hasta" onchange="renderAlbaranes()" style="width:150px">
-          </div>
-          <div id="alb-resumen" style="font-family:var(--mono);font-size:12px;color:var(--text3)"></div>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Fecha</th><th>Nº Albarán</th><th>Proveedor</th><th>Almacén</th><th>Artículos</th><th>Base imponible</th><th>IVA</th><th>Total</th><th></th></tr></thead><tbody id="albaranes-table"></tbody></table>
-        </div>
-      </div>
-
-      <!-- PEDIDO -->
-      <div id="sec-pedido" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <div>
-            <div style="font-size:15px;font-weight:600;margin-bottom:2px">Pedido semanal automático</div>
-            <div style="font-size:12px;color:var(--text3)">Productos bajo mínimo, agrupados por proveedor</div>
-          </div>
-          <div class="row" style="gap:8px">
-            <button class="btn" onclick="generarPedido()"><i class="ti ti-refresh"></i>Regenerar</button>
-            <button class="btn btn-primary" onclick="exportarPedido()"><i class="ti ti-download"></i>Exportar</button>
-          </div>
-        </div>
-        <div id="pedido-content"></div>
-      </div>
-
-      <!-- PROVEEDORES -->
-      <div id="sec-proveedores" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <span></span>
-          <button class="btn btn-primary" onclick="openModal('modal-proveedor')"><i class="ti ti-plus"></i>Nuevo proveedor</button>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Nombre</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th>Categoría</th><th>Artículos</th><th></th></tr></thead><tbody id="prov-table"></tbody></table>
-        </div>
-      </div>
-
-      <!-- HISTORIAL PRECIOS -->
-      <div id="sec-precios" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <div class="row" style="gap:8px">
-            <select id="precio-prod" onchange="renderPrecios()" style="width:240px"><option value="">Todos los productos</option></select>
-            <select id="precio-prov" onchange="renderPrecios()" style="width:200px"><option value="">Todos los proveedores</option></select>
-          </div>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Fecha</th><th>Producto</th><th>Proveedor</th><th>Nº Albarán</th><th>Precio/u</th><th>IVA%</th><th>Variación</th></tr></thead><tbody id="precios-table"></tbody></table>
-        </div>
-      </div>
-
-      <!-- PEDIDOS -->
-      <div id="sec-pedidos" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <div class="tabs" style="border:none;margin:0">
-            <button class="tab active" onclick="filterPedidos('todos',this)">Todos</button>
-            <button class="tab" onclick="filterPedidos('pendiente',this)">Pendiente</button>
-            <button class="tab" onclick="filterPedidos('enviado',this)">Enviado</button>
-            <button class="tab" onclick="filterPedidos('recibido',this)">Recibido</button>
-          </div>
-          <button class="btn btn-primary" onclick="openModal('modal-nuevo-pedido')"><i class="ti ti-plus"></i>Nuevo pedido</button>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Almacén</th><th>Artículos</th><th>Importe est.</th><th>Estado</th><th></th></tr></thead><tbody id="pedidos-table"></tbody></table>
-        </div>
-      </div>
-
-      <!-- INVENTARIO -->
-      <div id="sec-inventario" class="section">
-        <div class="row-between" style="margin-bottom:16px">
-          <div>
-            <div style="font-size:15px;font-weight:600;margin-bottom:2px">Inventarios</div>
-            <div style="font-size:12px;color:var(--text3)">Genera hojas de recuento y registra el inventario real</div>
-          </div>
-          <div class="row" style="gap:8px">
-            <button class="btn" onclick="imprimirInventario()"><i class="ti ti-printer"></i>Imprimir hoja</button>
-            <button class="btn btn-primary" onclick="openModal('modal-inventario')"><i class="ti ti-plus"></i>Nuevo inventario</button>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" id="inv-almacen-select">
-          <div onclick="selectInvAlmacen('central',this)" style="padding:14px;border:2px solid var(--accent);border-radius:var(--radius);cursor:pointer;background:var(--accent-light)">
-            <div style="font-weight:600;margin-bottom:4px">Central</div>
-            <div style="font-size:12px;color:var(--text3)" id="inv-count-central"></div>
-          </div>
-          <div onclick="selectInvAlmacen('cocina',this)" style="padding:14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer">
-            <div style="font-weight:600;margin-bottom:4px">Cocina</div>
-            <div style="font-size:12px;color:var(--text3)" id="inv-count-cocina"></div>
-          </div>
-          <div onclick="selectInvAlmacen('restaurante',this)" style="padding:14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer">
-            <div style="font-weight:600;margin-bottom:4px">Restaurante</div>
-            <div style="font-size:12px;color:var(--text3)" id="inv-count-restaurante"></div>
-          </div>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <table><thead><tr><th>Producto</th><th>Stock teórico</th><th>Recuento real</th><th>Diferencia</th><th>Valoración dif.</th></tr></thead><tbody id="inventario-table"></tbody></table>
-        </div>
-        <div id="inv-resumen" style="margin-top:12px;text-align:right;font-family:var(--mono);font-size:13px;color:var(--text3)"></div>
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn btn-primary" onclick="guardarInventario()"><i class="ti ti-check"></i>Guardar inventario</button>
-        </div>
-        <div class="card" style="margin-top:20px">
-          <div class="card-title"><i class="ti ti-history"></i>Inventarios anteriores</div>
-          <table><thead><tr><th>Fecha</th><th>Almacén</th><th>Productos</th><th>Diferencia total</th><th>Valoración</th></tr></thead><tbody id="inv-historial"></tbody></table>
-        </div>
-      </div>
-
-      <!-- CONFIG -->
-      <div id="sec-config" class="section">
-        <div class="card" style="max-width:480px">
-          <div class="card-title"><i class="ti ti-settings"></i>Configuración</div>
-          <div class="form-group"><label>Nombre del hotel</label><input type="text" id="cfg-hotel" value="Hotel Cortijo Chico"></div>
-          <div class="form-group"><label>Días alerta caducidad</label><input type="number" id="cfg-cad-dias" value="7" style="width:100px"></div>
-          <div class="form-group"><label>Usuario actual</label><input type="text" id="cfg-usuario" value="Administrador"></div>
-          <button class="btn btn-primary" onclick="saveConfig()"><i class="ti ti-check"></i>Guardar</button>
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border2)">
-            <div class="row" style="gap:8px">
-              <button class="btn btn-sm" onclick="exportData()"><i class="ti ti-download"></i>Exportar datos</button>
-              <button class="btn btn-sm btn-danger" onclick="if(confirm('Borrar todo?'))clearData()"><i class="ti ti-trash"></i>Borrar todo</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- MODALES -->
-<div id="modal-producto" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-producto')">
-  <div class="modal">
-    <div class="modal-title">Producto <button class="modal-close" onclick="closeModal('modal-producto')"><i class="ti ti-x"></i></button></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="form-group"><label>Código</label><input type="text" id="np-codigo"></div>
-      <div class="form-group"><label>Nombre *</label><input type="text" id="np-nombre"></div>
-      <div class="form-group"><label>Categoría</label>
-        <select id="np-cat"><option>Carnes y pescados</option><option>Lácteos</option><option>Verduras y frutas</option><option>Bebidas</option><option>Panadería</option><option>Limpieza</option><option>Varios</option></select>
-      </div>
-      <div class="form-group"><label>Unidad</label>
-        <select id="np-unidad"><option>kg</option><option>L</option><option>unid</option><option>botellas</option><option>cajas</option><option>g</option></select>
-      </div>
-      <div class="form-group"><label>Mínimo total</label><input type="number" id="np-minimo" value="5" min="0" step="0.1"></div>
-      <div class="form-group"><label>Precio fijo (€/u)</label><input type="number" id="np-precio" value="0" min="0" step="0.01"></div>
-      <div class="form-group"><label>IVA %</label>
-        <select id="np-iva"><option value="10">10%</option><option value="4">4%</option><option value="21">21%</option><option value="0">0%</option></select>
-      </div>
-      <div class="form-group"><label>Proveedor principal</label><input type="text" id="np-proveedor" list="prov-list2"><datalist id="prov-list2"></datalist></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-producto')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarProducto()"><i class="ti ti-check"></i>Guardar</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-edit-producto" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-edit-producto')">
-  <div class="modal">
-    <div class="modal-title">Editar producto <button class="modal-close" onclick="closeModal('modal-edit-producto')"><i class="ti ti-x"></i></button></div>
-    <input type="hidden" id="ep-id">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="form-group"><label>Código</label><input type="text" id="ep-codigo"></div>
-      <div class="form-group"><label>Nombre</label><input type="text" id="ep-nombre"></div>
-      <div class="form-group"><label>Categoría</label>
-        <select id="ep-cat"><option>Carnes y pescados</option><option>Lácteos</option><option>Verduras y frutas</option><option>Bebidas</option><option>Panadería</option><option>Limpieza</option><option>Varios</option></select>
-      </div>
-      <div class="form-group"><label>Unidad</label>
-        <select id="ep-unidad"><option>kg</option><option>L</option><option>unid</option><option>botellas</option><option>cajas</option><option>g</option></select>
-      </div>
-      <div class="form-group"><label>Mínimo total</label><input type="number" id="ep-minimo" min="0" step="0.1"></div>
-      <div class="form-group"><label>Precio fijo (€/u)</label><input type="number" id="ep-precio" min="0" step="0.01"></div>
-      <div class="form-group"><label>IVA %</label>
-        <select id="ep-iva"><option value="10">10%</option><option value="4">4%</option><option value="21">21%</option><option value="0">0%</option></select>
-      </div>
-      <div class="form-group"><label>Proveedor principal</label><input type="text" id="ep-proveedor"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-edit-producto')">Cancelar</button>
-      <button class="btn btn-primary" onclick="actualizarProducto()"><i class="ti ti-check"></i>Guardar cambios</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-proveedor" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-proveedor')">
-  <div class="modal">
-    <div class="modal-title">Proveedor <button class="modal-close" onclick="closeModal('modal-proveedor')"><i class="ti ti-x"></i></button></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="form-group" style="grid-column:1/-1"><label>Nombre *</label><input type="text" id="pv-nombre"></div>
-      <div class="form-group"><label>Contacto</label><input type="text" id="pv-contacto"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="pv-telefono"></div>
-      <div class="form-group"><label>Email</label><input type="text" id="pv-email"></div>
-      <div class="form-group"><label>Categoría</label>
-        <select id="pv-cat"><option>Carnes y pescados</option><option>Lácteos</option><option>Verduras y frutas</option><option>Bebidas</option><option>Panadería</option><option>Limpieza</option><option>Varios</option></select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-proveedor')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarProveedor()"><i class="ti ti-check"></i>Guardar</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-albaran-detalle" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-albaran-detalle')">
-  <div class="modal modal-lg">
-    <div class="modal-title"><span id="mad-titulo">Detalle albarán</span><button class="modal-close" onclick="closeModal('modal-albaran-detalle')"><i class="ti ti-x"></i></button></div>
-    <div id="mad-content"></div>
-    <div class="modal-footer">
-      <button class="btn btn-danger" id="mad-borrar"><i class="ti ti-trash"></i>Borrar albarán</button>
-      <button class="btn" onclick="closeModal('modal-albaran-detalle')">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-nuevo-pedido" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-nuevo-pedido')">
-  <div class="modal modal-lg">
-    <div class="modal-title">Nuevo pedido <button class="modal-close" onclick="closeModal('modal-nuevo-pedido')"><i class="ti ti-x"></i></button></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-      <div class="form-group" style="margin:0"><label>Proveedor *</label><input type="text" id="np2-proveedor" list="prov-list3"><datalist id="prov-list3"></datalist></div>
-      <div class="form-group" style="margin:0"><label>Fecha pedido</label><input type="date" id="np2-fecha"></div>
-      <div class="form-group" style="margin:0"><label>Almacén destino</label>
-        <select id="np2-almacen"><option value="central">Central</option><option value="cocina">Cocina</option><option value="restaurante">Restaurante</option></select>
-      </div>
-    </div>
-    <div class="form-group"><label>Notas para el proveedor</label><input type="text" id="np2-notas" placeholder="Opcional"></div>
-    <div class="row-between" style="margin-bottom:8px">
-      <span style="font-size:12px;font-weight:600;color:var(--text2);font-family:var(--mono);text-transform:uppercase">Líneas del pedido</span>
-      <div class="row" style="gap:6px">
-        <button class="btn btn-sm" onclick="autoRellenarPedido()"><i class="ti ti-magic"></i>Auto (stock mínimo)</button>
-        <button class="btn btn-sm" onclick="addPedidoRow()"><i class="ti ti-plus"></i>Añadir línea</button>
-      </div>
-    </div>
-    <table><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio est.</th><th></th></tr></thead><tbody id="np2-lineas"></tbody></table>
-    <div id="np2-total" style="text-align:right;margin-top:10px;font-family:var(--mono);font-size:13px;color:var(--text3)"></div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-nuevo-pedido')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarPedido()"><i class="ti ti-check"></i>Guardar pedido</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-ver-pedido" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-ver-pedido')">
-  <div class="modal modal-lg">
-    <div class="modal-title"><span id="mvp-titulo">Pedido</span><button class="modal-close" onclick="closeModal('modal-ver-pedido')"><i class="ti ti-x"></i></button></div>
-    <div id="mvp-content"></div>
-    <div class="modal-footer" id="mvp-footer"></div>
-  </div>
-</div>
-
-<div id="modal-inventario" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-inventario')">
-  <div class="modal">
-    <div class="modal-title">Nuevo inventario <button class="modal-close" onclick="closeModal('modal-inventario')"><i class="ti ti-x"></i></button></div>
-    <div class="form-group"><label>Almacén</label>
-      <select id="ni-almacen" onchange="selectInvAlmacen(this.value)"><option value="central">Central</option><option value="cocina">Cocina</option><option value="restaurante">Restaurante</option></select>
-    </div>
-    <div class="form-group"><label>Fecha</label><input type="date" id="ni-fecha"></div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-inventario')">Cancelar</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-inventario');renderInventario()"><i class="ti ti-check"></i>Iniciar recuento</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-
-<script>
-const ALMACENES = ['central','cocina','restaurante'];
-const ALM_LABEL = {central:'Central',cocina:'Cocina',restaurante:'Restaurante'};
-const ALM_CLS = {central:'badge-central',cocina:'badge-cocina',restaurante:'badge-restaurante'};
-
-let state = {
-  config:{hotel:'Hotel Cortijo Chico',cadDias:7,usuario:'Administrador'},
-  productos:[
-    {id:'p1',codigo:'310019526',nombre:'Cerdo codillo jamón S/P',cat:'Carnes y pescados',stockCentral:12,stockCocina:0,stockRestaurante:0,minimo:8,unidad:'kg',proveedor:'Roman y Martos',precioFijo:3.30,iva:10},
-    {id:'p2',codigo:'002333',nombre:'Cerdo costilla corbata FR',cat:'Carnes y pescados',stockCentral:5,stockCocina:0,stockRestaurante:0,minimo:6,unidad:'kg',proveedor:'Roman y Martos',precioFijo:6.65,iva:10},
-    {id:'p3',codigo:'001326',nombre:'Pollo gordo 8 canales',cat:'Carnes y pescados',stockCentral:4,stockCocina:0,stockRestaurante:0,minimo:10,unidad:'kg',proveedor:'Roman y Martos',precioFijo:3.50,iva:10},
-    {id:'p4',codigo:'011286',nombre:'Tiras de pollo picante 10x1',cat:'Carnes y pescados',stockCentral:20,stockCocina:0,stockRestaurante:0,minimo:10,unidad:'kg',proveedor:'Roman y Martos',precioFijo:8.25,iva:10},
-    {id:'p5',codigo:'004607',nombre:'Rosada HGT Sudáfrica deshuesada',cat:'Carnes y pescados',stockCentral:3,stockCocina:0,stockRestaurante:0,minimo:8,unidad:'kg',proveedor:'Roman y Martos',precioFijo:9.95,iva:10},
-    {id:'p6',codigo:'004824',nombre:'Finger pollo crunch 6x1',cat:'Carnes y pescados',stockCentral:6,stockCocina:0,stockRestaurante:0,minimo:6,unidad:'kg',proveedor:'Roman y Martos',precioFijo:6.90,iva:10},
-    {id:'p7',codigo:'001327',nombre:'Pollo pechuga 1ª granel 10kg FR',cat:'Carnes y pescados',stockCentral:11,stockCocina:0,stockRestaurante:0,minimo:10,unidad:'kg',proveedor:'Roman y Martos',precioFijo:5.00,iva:10},
-    {id:'p8',codigo:'LEC001',nombre:'Leche entera',cat:'Lácteos',stockCentral:24,stockCocina:0,stockRestaurante:0,minimo:12,unidad:'L',proveedor:'Lácteos Málaga',precioFijo:0,iva:4},
-    {id:'p9',codigo:'VIN001',nombre:'Vino tinto DO',cat:'Bebidas',stockCentral:48,stockCocina:0,stockRestaurante:0,minimo:24,unidad:'botellas',proveedor:'Bodegas Málaga',precioFijo:0,iva:21},
-    {id:'p10',codigo:'AGU001',nombre:'Agua mineral 5L',cat:'Bebidas',stockCentral:18,stockCocina:0,stockRestaurante:0,minimo:30,unidad:'garrafas',proveedor:'Bebidas Martínez',precioFijo:0,iva:10},
-  ],
-  lotes:[
-    {id:'l1',prodId:'p1',lote:'LOT-001',almacen:'central',proveedor:'Roman y Martos',fechaEntrada:'2026-05-20',fechaCad:'2026-06-11',cantidad:12},
-    {id:'l2',prodId:'p3',lote:'LOT-002',almacen:'central',proveedor:'Roman y Martos',fechaEntrada:'2026-05-25',fechaCad:'2026-06-12',cantidad:4},
-    {id:'l3',prodId:'p5',lote:'LOT-003',almacen:'central',proveedor:'Roman y Martos',fechaEntrada:'2026-05-28',fechaCad:'2026-09-30',cantidad:3},
-    {id:'l4',prodId:'p8',lote:'LOT-004',almacen:'central',proveedor:'Lácteos Málaga',fechaEntrada:'2026-06-01',fechaCad:'2026-06-18',cantidad:24},
-  ],
-  proveedores:[
-    {id:'pv1',nombre:'Roman y Martos Alimentación SL',contacto:'',telefono:'952179383',email:'',cat:'Carnes y pescados'},
-    {id:'pv2',nombre:'Lácteos Málaga',contacto:'',telefono:'',email:'',cat:'Lácteos'},
-    {id:'pv3',nombre:'Bodegas Málaga',contacto:'',telefono:'',email:'',cat:'Bebidas'},
-    {id:'pv4',nombre:'Bebidas Martínez',contacto:'',telefono:'',email:'',cat:'Bebidas'},
-  ],
-  movimientos:[
-    {fecha:'2026-06-04',producto:'Cerdo codillo jamón S/P',tipo:'Entrada',cant:'10 kg',desde:'Proveedor',hasta:'central',usuario:'Admin'},
-  ],
-  albaranes:[
-    {id:'alb1',fecha:'2026-06-04',numero:'26/34640',proveedor:'Roman y Martos Alimentación SL',almacen:'central',
-     lineas:[
-       {codigo:'310019526',nombre:'Cerdo codillo jamón S/P',lote:'',cad:'2026-09-28',qty:68.20,precio:3.30,iva:10},
-       {codigo:'002333',nombre:'Cerdo costilla corbata FR',lote:'',cad:'2026-06-11',qty:37.80,precio:6.65,iva:10},
-       {codigo:'001326',nombre:'Pollo gordo 8 canales',lote:'',cad:'2026-06-12',qty:19.29,precio:3.50,iva:10},
-       {codigo:'011286',nombre:'Tiras de pollo picante 10x1',lote:'',cad:'2026-09-28',qty:10,precio:8.25,iva:10},
-       {codigo:'004607',nombre:'Rosada HGT Sudáfrica deshuesada',lote:'',cad:'2026-09-30',qty:18.80,precio:9.95,iva:10},
-       {codigo:'004824',nombre:'Finger pollo crunch 6x1',lote:'',cad:'2026-08-27',qty:6,precio:6.90,iva:10},
-       {codigo:'001327',nombre:'Pollo pechuga 1ª granel 10kg FR',lote:'',cad:'2026-10-08',qty:11.37,precio:5.00,iva:10},
-     ]
-    }
-  ],
-  precios:[
-    {fecha:'2026-06-04',prodId:'p1',producto:'Cerdo codillo jamón S/P',proveedor:'Roman y Martos',albaran:'26/34640',precio:3.30,iva:10},
-    {fecha:'2026-06-04',prodId:'p2',producto:'Cerdo costilla corbata FR',proveedor:'Roman y Martos',albaran:'26/34640',precio:6.65,iva:10},
-    {fecha:'2026-06-04',prodId:'p3',producto:'Pollo gordo 8 canales',proveedor:'Roman y Martos',albaran:'26/34640',precio:3.50,iva:10},
-    {fecha:'2026-06-04',prodId:'p4',producto:'Tiras de pollo picante 10x1',proveedor:'Roman y Martos',albaran:'26/34640',precio:8.25,iva:10},
-    {fecha:'2026-06-04',prodId:'p5',producto:'Rosada HGT Sudáfrica deshuesada',proveedor:'Roman y Martos',albaran:'26/34640',precio:9.95,iva:10},
-    {fecha:'2026-06-04',prodId:'p6',producto:'Finger pollo crunch 6x1',proveedor:'Roman y Martos',albaran:'26/34640',precio:6.90,iva:10},
-    {fecha:'2026-06-04',prodId:'p7',producto:'Pollo pechuga 1ª granel 10kg FR',proveedor:'Roman y Martos',albaran:'26/34640',precio:5.00,iva:10},
-  ]
-};
-
-async function saveState(){
-  // Legacy - DB is updated via specific API calls below
-}
-async function apiPost(url, data){
-  try{ await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); }
-  catch(e){ console.error('API error:', url, e); }
-}
-async function apiPut(url, data){
-  try{ await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); }
-  catch(e){ console.error('API error:', url, e); }
-}
-async function apiDelete(url){
-  try{ await fetch(url,{method:'DELETE'}); }
-  catch(e){ console.error('API error:', url, e); }
-}
-async function loadState(){
-  try {
-    const r = await fetch('/api/load');
-    const data = await r.json();
-    if(data.productos) state.productos = data.productos;
-    if(data.proveedores) state.proveedores = data.proveedores;
-    if(data.albaranes) state.albaranes = data.albaranes;
-    if(data.pedidos) state.pedidos = data.pedidos;
-    if(data.lotes) state.lotes = data.lotes;
-    if(data.movimientos) state.movimientos = data.movimientos;
-    if(data.precios) state.precios = data.precios;
-    if(data.inventarios) state.inventarios = data.inventarios;
-    if(data.config) state.config = data.config;
-  } catch(e) { console.error('Error loading state:', e); }
+// Init DB tables
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS productos (
+      id TEXT PRIMARY KEY,
+      codigo TEXT,
+      nombre TEXT NOT NULL,
+      cat TEXT,
+      stock_central NUMERIC DEFAULT 0,
+      stock_cocina NUMERIC DEFAULT 0,
+      stock_restaurante NUMERIC DEFAULT 0,
+      minimo NUMERIC DEFAULT 0,
+      unidad TEXT DEFAULT 'kg',
+      proveedor TEXT,
+      precio_fijo NUMERIC DEFAULT 0,
+      iva INTEGER DEFAULT 10,
+      notas TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS proveedores (
+      id TEXT PRIMARY KEY,
+      nombre TEXT NOT NULL,
+      contacto TEXT,
+      telefono TEXT,
+      email TEXT,
+      cat TEXT,
+      notas TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS albaranes (
+      id TEXT PRIMARY KEY,
+      fecha DATE,
+      numero TEXT,
+      proveedor TEXT,
+      almacen TEXT DEFAULT 'central',
+      lineas JSONB DEFAULT '[]',
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS pedidos (
+      id TEXT PRIMARY KEY,
+      fecha DATE,
+      proveedor TEXT,
+      almacen TEXT DEFAULT 'central',
+      estado TEXT DEFAULT 'pendiente',
+      notas TEXT,
+      lineas JSONB DEFAULT '[]',
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS lotes (
+      id TEXT PRIMARY KEY,
+      prod_id TEXT REFERENCES productos(id) ON DELETE CASCADE,
+      lote TEXT,
+      almacen TEXT DEFAULT 'central',
+      proveedor TEXT,
+      fecha_entrada DATE,
+      fecha_cad DATE,
+      cantidad NUMERIC DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS movimientos (
+      id SERIAL PRIMARY KEY,
+      fecha DATE,
+      producto TEXT,
+      tipo TEXT,
+      cant TEXT,
+      desde TEXT,
+      hasta TEXT,
+      usuario TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS precios (
+      id SERIAL PRIMARY KEY,
+      fecha DATE,
+      prod_id TEXT,
+      producto TEXT,
+      proveedor TEXT,
+      albaran TEXT,
+      precio NUMERIC,
+      iva INTEGER DEFAULT 10,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS inventarios (
+      id TEXT PRIMARY KEY,
+      fecha DATE,
+      almacen TEXT,
+      lineas JSONB DEFAULT '[]',
+      total_diff NUMERIC DEFAULT 0,
+      total_val NUMERIC DEFAULT 0,
+      usuario TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS config (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );
+    INSERT INTO config(key,value) VALUES ('hotel','Hotel Cortijo Chico'),('cad_dias','7'),('usuario','Administrador')
+    ON CONFLICT(key) DO NOTHING;
+  `);
+  console.log('DB ready');
 }
 
-// NAV
-const pageTitles={dashboard:'Panel general',productos:'Productos',lotes:'Lotes y caducidades',movimientos:'Mover mercancía',albaran:'Leer albarán IA',entrada:'Entrada manual',albaranes:'Registro de albaranes',pedidos:'Pedidos a proveedores',pedido:'Auto-pedido',inventario:'Inventarios',proveedores:'Proveedores',precios:'Historial de precios',config:'Configuración'};
-const pageSubs={dashboard:'Resumen del economato',productos:'Catálogo con stock por almacén',lotes:'Control de caducidades',movimientos:'Traslados entre almacenes',albaran:'Escanea y registra automáticamente',entrada:'Registra mercancía manualmente',albaranes:'Historial de albaranes recibidos',pedidos:'Crea y gestiona pedidos a proveedores',pedido:'Genera pedidos automáticos por stock mínimo',inventario:'Recuento y ajuste de stock real',proveedores:'Directorio de proveedores',precios:'Evolución histórica de precios',config:'Ajustes del sistema'};
-
-function _navImpl(id,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
-  if(btn) btn.classList.add('active');
-  document.getElementById('page-title').textContent=pageTitles[id]||id;
-  document.getElementById('page-sub').textContent=pageSubs[id]||'';
-  const r={dashboard:renderDashboard,productos:renderProductos,lotes:renderLotes,movimientos:initMovimientos,pedido:generarPedido,pedidos:renderPedidos,inventario:renderInventario,proveedores:renderProveedores,precios:renderPrecios,entrada:initEntrada,albaranes:renderAlbaranes};
-  if(r[id]) r[id]();
-}
-
-// HELPERS
-function uid(){return 'x'+Math.random().toString(36).substr(2,9);}
-function fmt(n){return (Math.round(n*100)/100).toFixed(2).replace('.',',');}
-function fmtDate(d){if(!d)return '—';const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;}
-function diasHastaCad(d){if(!d)return 999;return Math.round((new Date(d)-new Date())/(86400000));}
-function stockTotal(p){return (p.stockCentral||0)+(p.stockCocina||0)+(p.stockRestaurante||0);}
-function stockAlmacen(p,alm){return p['stock'+alm.charAt(0).toUpperCase()+alm.slice(1)]||0;}
-function setStockAlmacen(p,alm,val){p['stock'+alm.charAt(0).toUpperCase()+alm.slice(1)]=Math.max(0,val);}
-function estadoStock(p){const r=stockTotal(p)/p.minimo;if(r<=0.5)return{label:'Crítico',cls:'badge-critical'};if(r<1)return{label:'Bajo mínimo',cls:'badge-low'};return{label:'OK',cls:'badge-ok'};}
-function estadoCad(dias){if(dias<0)return{label:'Caducado',cls:'badge-critical'};if(dias<=7)return{label:dias+'d',cls:'badge-low'};return{label:dias+'d',cls:'badge-ok'};}
-function toast(msg,type){const t=document.getElementById('toast');t.innerHTML='<i class="ti ti-'+(type==='error'?'alert-circle':'check')+'"></i>'+msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-function openModal(id){document.getElementById(id).style.display='flex';updateProvLists();const pl3=document.getElementById('prov-list3');if(pl3)pl3.innerHTML=state.proveedores.map(p=>'<option value="'+p.nombre+'">').join('');if(id==='modal-nuevo-pedido'){pedidoLineas=[{}];renderPedidoLineas();document.getElementById('np2-fecha').value=new Date().toISOString().split('T')[0];}}
-function closeModal(id){document.getElementById(id).style.display='none';}
-function updateProvLists(){const opts=state.proveedores.map(p=>'<option value="'+p.nombre+'">').join('');['prov-list','prov-list2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});}
-function getLastPrice(codigo,nombre){
-  const s=[...state.precios].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  const m=s.find(p=>{const pr=state.productos.find(x=>x.id===p.prodId);return (codigo&&pr&&pr.codigo===codigo)||(pr&&pr.nombre.toLowerCase()===nombre.toLowerCase());});
-  return m?{precio:m.precio,iva:m.iva}:null;
-}
-function calcAlbTotal(){
-  let base=0,ivaTotal=0;
-  const n=window._albaranCount||0;
-  for(let i=0;i<n;i++){
-    const qty=parseFloat(document.getElementById('al-qty-'+i)?.value)||0;
-    const pre=parseFloat(document.getElementById('al-pre-'+i)?.value)||0;
-    const iva=parseFloat(document.getElementById('al-iva-'+i)?.value)||0;
-    const b=qty*pre; base+=b; ivaTotal+=b*(iva/100);
-  }
-  document.getElementById('alb-totales').innerHTML='Base imponible: <b>'+fmt(base)+' €</b> &nbsp;|&nbsp; IVA: <b>'+fmt(ivaTotal)+' €</b> &nbsp;|&nbsp; Total: <b>'+fmt(base+ivaTotal)+' €</b>';
-}
-function calcLineaAlb(i){
-  const qty=parseFloat(document.getElementById('al-qty-'+i)?.value)||0;
-  const pre=parseFloat(document.getElementById('al-pre-'+i)?.value)||0;
-  const iva=parseFloat(document.getElementById('al-iva-'+i)?.value)||0;
-  const base=qty*pre;
-  const el=document.getElementById('al-base-'+i);if(el)el.textContent=fmt(base)+' €';
-  const el2=document.getElementById('al-total-'+i);if(el2)el2.textContent=fmt(base*(1+iva/100))+' €';
-  calcAlbTotal();
-}
-
-// DASHBOARD
-function renderDashboard(){
-  const total=state.productos.length;
-  const low=state.productos.filter(p=>stockTotal(p)<p.minimo).length;
-  const crit=state.productos.filter(p=>stockTotal(p)/p.minimo<=0.5).length;
-  const proxCad=state.lotes.filter(l=>diasHastaCad(l.fechaCad)<=7).length;
-  document.getElementById('dash-metrics').innerHTML=
-    '<div class="metric"><div class="metric-label">Productos</div><div class="metric-value">'+total+'</div></div>'+
-    '<div class="metric"><div class="metric-label">Bajo mínimo</div><div class="metric-value" style="color:var(--warn)">'+low+'</div></div>'+
-    '<div class="metric"><div class="metric-label">Crítico</div><div class="metric-value" style="color:var(--danger)">'+crit+'</div></div>'+
-    '<div class="metric"><div class="metric-label">Caduc. próx.</div><div class="metric-value" style="color:var(--danger)">'+proxCad+'</div></div>'+
-    '<div class="metric"><div class="metric-label">Albaranes</div><div class="metric-value">'+state.albaranes.length+'</div></div>';
-  const lp=state.productos.filter(p=>stockTotal(p)<p.minimo);
-  document.getElementById('dash-low').innerHTML=lp.length?lp.map(p=>{const e=estadoStock(p);return'<tr><td>'+p.nombre+'</td><td style="font-family:var(--mono)">'+fmt(stockTotal(p))+' '+p.unidad+'</td><td style="color:var(--text3)">'+p.minimo+'</td><td><span class="badge '+e.cls+'">'+e.label+'</span></td></tr>';}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:16px">Todo OK</td></tr>';
-  const cp=state.lotes.filter(l=>diasHastaCad(l.fechaCad)<=14).sort((a,b)=>new Date(a.fechaCad)-new Date(b.fechaCad));
-  document.getElementById('dash-cad').innerHTML=cp.length?cp.map(l=>{const pr=state.productos.find(p=>p.id===l.prodId);const dias=diasHastaCad(l.fechaCad);const e=estadoCad(dias);return'<tr><td>'+(pr?pr.nombre:l.prodId)+'</td><td><span class="tag">'+l.lote+'</span></td><td>'+fmtDate(l.fechaCad)+'</td><td><span class="badge '+e.cls+'">'+e.label+'</span></td></tr>';}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:16px">Sin alertas</td></tr>';
-  document.getElementById('dash-mov').innerHTML=state.movimientos.slice(0,8).map(m=>'<tr><td style="color:var(--text3);font-family:var(--mono);font-size:12px">'+fmtDate(m.fecha)+'</td><td>'+m.producto+'</td><td><span class="badge '+(m.tipo==='Entrada'?'badge-ok':m.tipo==='Movimiento'?'badge-info':'badge-low')+'">'+m.tipo+'</span></td><td style="font-family:var(--mono)">'+m.cant+'</td><td style="color:var(--text3);font-size:12px">'+(m.desde||'—')+' → '+(m.hasta?ALM_LABEL[m.hasta]||m.hasta:'—')+'</td><td style="color:var(--text3)">'+m.usuario+'</td></tr>').join('');
-}
-
-// PRODUCTOS
-function renderProductos(){
-  const q=(document.getElementById('prod-search')?.value||'').toLowerCase();
-  const cat=document.getElementById('prod-cat')?.value||'';
-  const list=state.productos.filter(p=>(!q||p.nombre.toLowerCase().includes(q)||p.codigo.toLowerCase().includes(q))&&(!cat||p.cat===cat));
-  document.getElementById('prod-table').innerHTML=list.map(p=>{
-    const e=estadoStock(p);
-    return '<tr>'+
-      '<td><span class="tag">'+(p.codigo||'—')+'</span></td>'+
-      '<td style="font-weight:500">'+p.nombre+'</td>'+
-      '<td style="color:var(--text3);font-size:12px">'+p.cat+'</td>'+
-      '<td style="font-family:var(--mono)">'+(p.stockCentral||0)+' '+p.unidad+'</td>'+
-      '<td style="font-family:var(--mono)">'+(p.stockCocina||0)+' '+p.unidad+'</td>'+
-      '<td style="font-family:var(--mono)">'+(p.stockRestaurante||0)+' '+p.unidad+'</td>'+
-      '<td style="color:var(--text3);font-family:var(--mono)">'+p.minimo+'</td>'+
-      '<td style="font-family:var(--mono)">'+(p.precioFijo>0?fmt(p.precioFijo)+' €':'—')+'</td>'+
-      '<td style="font-family:var(--mono)">'+(p.iva||10)+'%</td>'+
-      '<td><span class="badge '+e.cls+'">'+e.label+'</span></td>'+
-      '<td><button class="btn btn-sm" onclick="editProducto(\''+p.id+'\')"><i class="ti ti-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="eliminarProducto(\''+p.id+'\')"><i class="ti ti-trash"></i></button></td>'+
-      '</tr>';
-  }).join('');
-}
-
-async function guardarProducto(){
-  const nombre=document.getElementById('np-nombre').value.trim();
-  if(!nombre){toast('Nombre obligatorio','error');return;}
-  state.productos.push({id:uid(),codigo:document.getElementById('np-codigo').value.trim(),nombre,cat:document.getElementById('np-cat').value,stockCentral:0,stockCocina:0,stockRestaurante:0,minimo:parseFloat(document.getElementById('np-minimo').value)||0,unidad:document.getElementById('np-unidad').value,proveedor:document.getElementById('np-proveedor').value.trim(),precioFijo:parseFloat(document.getElementById('np-precio').value)||0,iva:parseInt(document.getElementById('np-iva').value)||10});
-  saveState();closeModal('modal-producto');renderProductos();toast('Producto añadido');
-}
-
-function editProducto(id){
-  const p=state.productos.find(x=>x.id===id);if(!p)return;
-  document.getElementById('ep-id').value=id;
-  document.getElementById('ep-codigo').value=p.codigo||'';
-  document.getElementById('ep-nombre').value=p.nombre;
-  document.getElementById('ep-cat').value=p.cat;
-  document.getElementById('ep-unidad').value=p.unidad;
-  document.getElementById('ep-minimo').value=p.minimo;
-  document.getElementById('ep-precio').value=p.precioFijo||0;
-  document.getElementById('ep-iva').value=p.iva||10;
-  document.getElementById('ep-proveedor').value=p.proveedor||'';
-  openModal('modal-edit-producto');
-}
-
-async function actualizarProducto(){
-  const id=document.getElementById('ep-id').value;
-  const p=state.productos.find(x=>x.id===id);if(!p)return;
-  p.codigo=document.getElementById('ep-codigo').value.trim();
-  p.nombre=document.getElementById('ep-nombre').value.trim();
-  p.cat=document.getElementById('ep-cat').value;
-  p.unidad=document.getElementById('ep-unidad').value;
-  p.minimo=parseFloat(document.getElementById('ep-minimo').value)||0;
-  p.precioFijo=parseFloat(document.getElementById('ep-precio').value)||0;
-  p.iva=parseInt(document.getElementById('ep-iva').value)||10;
-  p.proveedor=document.getElementById('ep-proveedor').value.trim();
-  await apiPost('/api/productos',p);closeModal('modal-edit-producto');renderProductos();toast('Producto actualizado');
-}
-
-async function eliminarProducto(id){
-  if(!confirm('¿Eliminar?'))return;
-  state.productos=state.productos.filter(p=>p.id!==id);
-  await apiDelete('/api/productos/'+id);renderProductos();toast('Eliminado');
-}
-
-// LOTES
-let loteFiltro='todos';
-function filterLotes(f,btn){loteFiltro=f;document.querySelectorAll('#sec-lotes .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderLotes();}
-function renderLotes(){
-  let list=[...state.lotes];
-  if(loteFiltro==='ok')list=list.filter(l=>diasHastaCad(l.fechaCad)>7);
-  if(loteFiltro==='prox')list=list.filter(l=>{const d=diasHastaCad(l.fechaCad);return d>=0&&d<=7;});
-  if(loteFiltro==='cad')list=list.filter(l=>diasHastaCad(l.fechaCad)<0);
-  list.sort((a,b)=>new Date(a.fechaCad)-new Date(b.fechaCad));
-  document.getElementById('lotes-table').innerHTML=list.length?list.map(l=>{const pr=state.productos.find(p=>p.id===l.prodId);const dias=diasHastaCad(l.fechaCad);const e=estadoCad(dias);return'<tr><td style="font-weight:500">'+(pr?pr.nombre:l.prodId)+'</td><td><span class="tag">'+(l.lote||'—')+'</span></td><td><span class="badge '+ALM_CLS[l.almacen||'central']+'">'+(ALM_LABEL[l.almacen||'central'])+'</span></td><td style="color:var(--text3);font-size:12px">'+(l.proveedor||'—')+'</td><td style="font-family:var(--mono);font-size:12px">'+fmtDate(l.fechaEntrada)+'</td><td style="font-family:var(--mono)">'+fmtDate(l.fechaCad)+'</td><td style="font-family:var(--mono)">'+l.cantidad+' '+(pr?pr.unidad:'')+'</td><td><span class="badge '+e.cls+'">'+e.label+'</span></td></tr>';}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:16px">Sin lotes</td></tr>';
-}
-
-// MOVIMIENTOS
-let movLineas=[{}];
-function initMovimientos(){
-  document.getElementById('mov-fecha').value=new Date().toISOString().split('T')[0];
-  renderMovLineas();
-  renderMovHistorial();
-}
-function renderMovLineas(){
-  document.getElementById('mov-lineas').innerHTML=movLineas.map((l,i)=>'<tr>'+
-    '<td><select id="ml-prod-'+i+'" style="width:100%"><option value="">Selecciona...</option>'+state.productos.map(p=>'<option value="'+p.id+'"'+(l.prodId===p.id?' selected':'')+'>'+p.nombre+'</option>').join('')+'</select></td>'+
-    '<td><input type="number" id="ml-qty-'+i+'" value="'+(l.qty||'')+'" min="0" step="0.01" style="width:80px"></td>'+
-    '<td>'+(movLineas.length>1?'<button class="qty-btn" onclick="removeMovRow('+i+')"><i class="ti ti-x" style="font-size:11px"></i></button>':'')+'</td>'+
-    '</tr>').join('');
-}
-function addMovRow(){movLineas.push({});renderMovLineas();}
-function removeMovRow(i){movLineas.splice(i,1);renderMovLineas();}
-async function confirmarMovimiento(){
-  const desde=document.getElementById('mov-desde').value;
-  const hasta=document.getElementById('mov-hasta').value;
-  const fecha=document.getElementById('mov-fecha').value;
-  if(desde===hasta){toast('El origen y destino son iguales','error');return;}
-  const usuario=state.config.usuario||'Admin';
-  let ok=0;
-  movLineas.forEach((l,i)=>{
-    const prodId=document.getElementById('ml-prod-'+i)?.value;
-    const qty=parseFloat(document.getElementById('ml-qty-'+i)?.value)||0;
-    if(!prodId||qty<=0)return;
-    const p=state.productos.find(x=>x.id===prodId);if(!p)return;
-    const stockOrigen=stockAlmacen(p,desde);
-    if(stockOrigen<qty){toast('Stock insuficiente en '+ALM_LABEL[desde]+' para '+p.nombre,'error');return;}
-    setStockAlmacen(p,desde,stockOrigen-qty);
-    setStockAlmacen(p,hasta,stockAlmacen(p,hasta)+qty);
-    state.movimientos.unshift({fecha,producto:p.nombre,tipo:'Movimiento',cant:qty+' '+p.unidad,desde:ALM_LABEL[desde],hasta,usuario});
-    ok++;
-  });
-  if(ok>0){saveState();movLineas=[{}];renderMovLineas();renderMovHistorial();toast('Movimiento registrado');}
-}
-function renderMovHistorial(){
-  const hist=state.movimientos.filter(m=>m.tipo==='Movimiento').slice(0,20);
-  document.getElementById('mov-historial').innerHTML=hist.length?hist.map(m=>'<tr><td style="font-family:var(--mono);font-size:12px;color:var(--text3)">'+fmtDate(m.fecha)+'</td><td>'+m.producto+'</td><td style="font-family:var(--mono)">'+m.cant+'</td><td><span class="badge '+(ALM_CLS[m.desde?.toLowerCase()]||'badge-info')+'">'+(m.desde||'—')+'</span></td><td><span class="badge '+ALM_CLS[m.hasta||'central']+'">'+(ALM_LABEL[m.hasta]||m.hasta||'—')+'</span></td><td style="color:var(--text3)">'+m.usuario+'</td></tr>').join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px">Sin movimientos registrados</td></tr>';
-}
-
-// ALBARÁN IA
-function handleDrop(e){e.preventDefault();document.getElementById('upload-zone').style.borderColor='';const f=e.dataTransfer.files[0];if(f)processFile(f);}
-function readAlbaran(e){const f=e.target.files[0];if(f)processFile(f);}
-function processFile(file){
-  if(file.type.startsWith('image/')){const r=new FileReader();r.onload=ev=>{document.getElementById('alb-img').src=ev.target.result;document.getElementById('alb-preview').style.display='block';};r.readAsDataURL(file);}
-  document.getElementById('alb-result').style.display='none';
-  document.getElementById('alb-error').style.display='none';
-  document.getElementById('alb-loading').style.display='block';
-  const fd=new FormData();fd.append('albaran',file);
-  fetch('/api/leer-albaran',{method:'POST',body:fd})
-    .then(r=>r.json())
-    .then(data=>{document.getElementById('alb-loading').style.display='none';if(!data.ok)throw new Error(data.error||'Error');renderAlbaranResult(data.data);})
-    .catch(err=>{document.getElementById('alb-loading').style.display='none';const el=document.getElementById('alb-error');el.style.display='block';el.innerHTML='<div class="alert alert-danger"><i class="ti ti-alert-circle"></i>'+err.message+'</div>';});
-}
-
-function renderAlbaranResult(d){
-  document.getElementById('alb-proveedor').value=d.proveedor||'';
-  document.getElementById('alb-numero').value=d.numero_albaran||'';
-  const fecha=d.fecha?d.fecha.split('/').reverse().join('-'):new Date().toISOString().split('T')[0];
-  document.getElementById('alb-fecha').value=fecha;
-  const rows=(d.productos||[]).map(function(p,i){
-    const qty=p.kilos||p.unidades||0;
-    const precioAlbaran=p.precio_unitario||0;
-    const mem=getLastPrice(p.codigo||'',p.nombre||'');
-    const precio=precioAlbaran>0?precioAlbaran:(mem?mem.precio:0);
-    const ivaDefault=mem?mem.iva:(function(){const pr=state.productos.find(x=>x.codigo===p.codigo);return pr?pr.iva:10;})();
-    const esMem=precioAlbaran===0&&mem!==null;
-    const base=qty*precio;
-    return '<tr>'+
-      '<td><input type="text" value="'+(p.codigo||'')+'" id="al-cod-'+i+'" style="width:75px"></td>'+
-      '<td><input type="text" value="'+(p.nombre||'')+'" id="al-nom-'+i+'" style="width:190px"></td>'+
-      '<td><input type="text" value="'+(p.lote||'')+'" id="al-lot-'+i+'" style="width:80px"></td>'+
-      '<td><input type="text" value="'+(p.fecha_caducidad||'')+'" id="al-cad-'+i+'" placeholder="DD/MM/YYYY" style="width:100px"></td>'+
-      '<td><input type="number" value="'+qty+'" id="al-qty-'+i+'" min="0" step="0.01" style="width:65px" oninput="calcLineaAlb('+i+')"></td>'+
-      '<td><input type="number" value="'+precio+'" id="al-pre-'+i+'" min="0" step="0.01" style="width:65px'+(esMem?';border-color:var(--accent)':'')+'" oninput="calcLineaAlb('+i+')" title="'+(esMem?'Precio del último albarán':'')+'"></td>'+
-      '<td><select id="al-iva-'+i+'" style="width:65px" onchange="calcLineaAlb('+i+')"><option value="10"'+(ivaDefault===10?' selected':'')+'>10%</option><option value="4"'+(ivaDefault===4?' selected':'')+'>4%</option><option value="21"'+(ivaDefault===21?' selected':'')+'>21%</option><option value="0"'+(ivaDefault===0?' selected':'')+'>0%</option></select></td>'+
-      '<td style="font-family:var(--mono);font-size:12px" id="al-base-'+i+'">'+fmt(base)+' €</td>'+
-      '<td style="font-family:var(--mono);font-size:12px" id="al-total-'+i+'">'+fmt(base*(1+ivaDefault/100))+' €</td>'+
-      '</tr>';
-  });
-  document.getElementById('alb-lineas').innerHTML=rows.join('');
-  window._albaranCount=(d.productos||[]).length;
-  document.getElementById('alb-result').style.display='block';
-  calcAlbTotal();
-}
-
-async function confirmarAlbaran(){
-  const proveedor=document.getElementById('alb-proveedor').value.trim();
-  const numero=document.getElementById('alb-numero').value.trim();
-  const fechaInput=document.getElementById('alb-fecha').value;
-  const almacen=document.getElementById('alb-almacen').value;
-  const n=window._albaranCount||0;
-  const usuario=state.config.usuario||'Admin';
-  const lineasAlb=[];
-  for(let i=0;i<n;i++){
-    const codigo=document.getElementById('al-cod-'+i)?.value.trim()||'';
-    const nombre=document.getElementById('al-nom-'+i)?.value.trim()||'';
-    const lote=document.getElementById('al-lot-'+i)?.value.trim()||'';
-    const cadRaw=document.getElementById('al-cad-'+i)?.value.trim()||'';
-    const qty=parseFloat(document.getElementById('al-qty-'+i)?.value)||0;
-    const precio=parseFloat(document.getElementById('al-pre-'+i)?.value)||0;
-    const iva=parseInt(document.getElementById('al-iva-'+i)?.value)||10;
-    if(!nombre||qty<=0)continue;
-    let prod=state.productos.find(p=>p.codigo===codigo||(codigo===''&&p.nombre.toLowerCase()===nombre.toLowerCase()));
-    if(!prod){prod={id:uid(),codigo,nombre,cat:'Carnes y pescados',stockCentral:0,stockCocina:0,stockRestaurante:0,minimo:5,unidad:'kg',proveedor,precioFijo:precio,iva};state.productos.push(prod);}
-    setStockAlmacen(prod,almacen,stockAlmacen(prod,almacen)+qty);
-    if(proveedor)prod.proveedor=proveedor;
-    const fechaCad=cadRaw?cadRaw.split('/').reverse().join('-'):null;
-    if(lote||fechaCad)state.lotes.push({id:uid(),prodId:prod.id,lote:lote||'L-'+Date.now(),almacen,proveedor,fechaEntrada:fechaInput,fechaCad,cantidad:qty});
-    if(precio>0)state.precios.push({fecha:fechaInput,prodId:prod.id,producto:nombre,proveedor,albaran:numero,precio,iva});
-    state.movimientos.unshift({fecha:fechaInput,producto:nombre,tipo:'Entrada',cant:'+'+qty+' '+(prod.unidad||'kg'),desde:proveedor||'Proveedor',hasta:almacen,usuario});
-    lineasAlb.push({codigo,nombre,lote,cad:fechaCad,qty,precio,iva});
-  }
-  // Guardar albarán completo
-  if(lineasAlb.length>0){
-    state.albaranes.push({id:uid(),fecha:fechaInput,numero,proveedor,almacen,lineas:lineasAlb});
-  }
-  // Save to DB
-  for(const p of state.productos){ await apiPost('/api/productos',p); }
-  if(lineasAlb.length>0){
-    const albId=state.albaranes[state.albaranes.length-1];
-    if(albId) await apiPost('/api/albaranes',albId);
-  }
-  // Save new precios and movimientos
-  const newPrecios=state.precios.filter(p=>p.fecha===fechaInput&&p.albaran===numero);
-  for(const p of newPrecios) await apiPost('/api/precios',p);
-  const newMovs=state.movimientos.slice(0,lineasAlb.length);
-  for(const m of newMovs) await apiPost('/api/movimientos',m);
-  const newLotes=state.lotes.slice(-lineasAlb.length);
-  for(const l of newLotes) await apiPost('/api/lotes',l);
-  resetAlbaran();toast('Albarán registrado. Stock actualizado.');
-}
-
-function resetAlbaran(){document.getElementById('alb-result').style.display='none';document.getElementById('alb-preview').style.display='none';document.getElementById('alb-error').style.display='none';document.getElementById('alb-file').value='';window._albaranCount=0;}
-
-// ENTRADA MANUAL
-let entLineas=[{}];
-function initEntrada(){document.getElementById('ent-fecha').value=new Date().toISOString().split('T')[0];updateProvLists();renderEntLineas();}
-function renderEntLineas(){
-  document.getElementById('ent-lineas').innerHTML=entLineas.map((l,i)=>'<tr>'+
-    '<td><select id="el-prod-'+i+'" style="width:100%"><option value="">Selecciona...</option>'+state.productos.map(p=>'<option value="'+p.id+'"'+(l.prodId===p.id?' selected':'')+'>'+p.nombre+'</option>').join('')+'</select></td>'+
-    '<td><input type="number" id="el-qty-'+i+'" value="'+(l.qty||'')+'" min="0" step="0.01" style="width:70px"></td>'+
-    '<td><input type="text" id="el-lote-'+i+'" value="'+(l.lote||'')+'" placeholder="Opcional"></td>'+
-    '<td><input type="text" id="el-cad-'+i+'" value="'+(l.cad||'')+'" placeholder="DD/MM/YYYY"></td>'+
-    '<td><input type="number" id="el-pre-'+i+'" value="'+(l.precio||'')+'" min="0" step="0.01" style="width:70px"></td>'+
-    '<td><select id="el-iva-'+i+'" style="width:60px"><option value="10">10%</option><option value="4">4%</option><option value="21">21%</option><option value="0">0%</option></select></td>'+
-    '<td>'+(entLineas.length>1?'<button class="qty-btn" onclick="removeEntLinea('+i+')"><i class="ti ti-x" style="font-size:11px"></i></button>':'')+'</td>'+
-    '</tr>').join('');
-}
-function addEntradaRow(){entLineas.push({});renderEntLineas();}
-function removeEntLinea(i){entLineas.splice(i,1);renderEntLineas();}
-async function confirmarEntrada(){
-  const prov=document.getElementById('ent-prov').value.trim();
-  const albNum=document.getElementById('ent-albaran').value.trim();
-  const fecha=document.getElementById('ent-fecha').value;
-  const almacen=document.getElementById('ent-almacen').value;
-  const usuario=state.config.usuario||'Admin';
-  const lineasAlb=[];
-  let ok=0;
-  entLineas.forEach((l,i)=>{
-    const prodId=document.getElementById('el-prod-'+i)?.value;
-    const qty=parseFloat(document.getElementById('el-qty-'+i)?.value)||0;
-    const lote=document.getElementById('el-lote-'+i)?.value.trim();
-    const cad=document.getElementById('el-cad-'+i)?.value.trim();
-    const precio=parseFloat(document.getElementById('el-pre-'+i)?.value)||0;
-    const iva=parseInt(document.getElementById('el-iva-'+i)?.value)||10;
-    if(!prodId||qty<=0)return;
-    const prod=state.productos.find(p=>p.id===prodId);if(!prod)return;
-    setStockAlmacen(prod,almacen,stockAlmacen(prod,almacen)+qty);
-    const fechaCad=cad?cad.split('/').reverse().join('-'):null;
-    if(lote||fechaCad)state.lotes.push({id:uid(),prodId:prod.id,lote:lote||'L-'+Date.now(),almacen,proveedor:prov,fechaEntrada:fecha,fechaCad,cantidad:qty});
-    if(precio>0)state.precios.push({fecha,prodId:prod.id,producto:prod.nombre,proveedor:prov,albaran:albNum,precio,iva});
-    state.movimientos.unshift({fecha,producto:prod.nombre,tipo:'Entrada',cant:'+'+qty+' '+prod.unidad,desde:prov||'Proveedor',hasta:almacen,usuario});
-    lineasAlb.push({codigo:prod.codigo,nombre:prod.nombre,lote,cad:fechaCad,qty,precio,iva});
-    ok++;
-  });
-  if(ok>0&&albNum)state.albaranes.push({id:uid(),fecha,numero:albNum,proveedor:prov,almacen,lineas:lineasAlb});
-  entLineas=[{}];renderEntLineas();
-  document.getElementById('ent-prov').value='';document.getElementById('ent-albaran').value='';
-  saveState();toast('Entrada registrada');
-}
-
-// REGISTRO ALBARANES
-function albBase(a){return a.lineas.reduce((s,l)=>s+l.qty*l.precio,0);}
-function albIva(a){return a.lineas.reduce((s,l)=>s+l.qty*l.precio*(l.iva/100),0);}
-function renderAlbaranes(){
-  const q=(document.getElementById('alb-search')?.value||'').toLowerCase();
-  const desde=document.getElementById('alb-desde')?.value||'';
-  const hasta=document.getElementById('alb-hasta')?.value||'';
-  let list=[...state.albaranes].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  if(q)list=list.filter(a=>a.proveedor.toLowerCase().includes(q)||a.numero.toLowerCase().includes(q));
-  if(desde)list=list.filter(a=>a.fecha>=desde);
-  if(hasta)list=list.filter(a=>a.fecha<=hasta);
-  const totalBase=list.reduce((s,a)=>s+albBase(a),0);
-  const totalIva=list.reduce((s,a)=>s+albIva(a),0);
-  document.getElementById('alb-resumen').textContent=list.length+' albaranes · Base: '+fmt(totalBase)+' € · IVA: '+fmt(totalIva)+' € · Total: '+fmt(totalBase+totalIva)+' €';
-  document.getElementById('albaranes-table').innerHTML=list.length?list.map(a=>{
-    const base=albBase(a);const iva=albIva(a);
-    return '<tr>'+
-      '<td style="font-family:var(--mono);font-size:12px">'+fmtDate(a.fecha)+'</td>'+
-      '<td><span class="tag">'+a.numero+'</span></td>'+
-      '<td style="font-weight:500">'+a.proveedor+'</td>'+
-      '<td><span class="badge '+ALM_CLS[a.almacen||'central']+'">'+ALM_LABEL[a.almacen||'central']+'</span></td>'+
-      '<td style="font-family:var(--mono)">'+a.lineas.length+'</td>'+
-      '<td style="font-family:var(--mono);font-weight:500">'+fmt(base)+' €</td>'+
-      '<td style="font-family:var(--mono)">'+fmt(iva)+' €</td>'+
-      '<td style="font-family:var(--mono);font-weight:600">'+fmt(base+iva)+' €</td>'+
-      '<td><button class="btn btn-sm" onclick="verAlbaran(\''+a.id+'\')"><i class="ti ti-eye"></i></button></td>'+
-      '</tr>';
-  }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:16px">Sin albaranes</td></tr>';
-}
-
-function verAlbaran(id){
-  const a=state.albaranes.find(x=>x.id===id);if(!a)return;
-  const base=albBase(a);const iva=albIva(a);
-  document.getElementById('mad-titulo').textContent='Albarán '+a.numero+' — '+fmtDate(a.fecha);
-  document.getElementById('mad-content').innerHTML=
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;font-size:13px">'+
-    '<div><div style="color:var(--text3);font-size:11px;margin-bottom:2px">Proveedor</div><div style="font-weight:500">'+a.proveedor+'</div></div>'+
-    '<div><div style="color:var(--text3);font-size:11px;margin-bottom:2px">Fecha</div><div>'+fmtDate(a.fecha)+'</div></div>'+
-    '<div><div style="color:var(--text3);font-size:11px;margin-bottom:2px">Almacén</div><div><span class="badge '+ALM_CLS[a.almacen||'central']+'">'+ALM_LABEL[a.almacen||'central']+'</span></div></div>'+
-    '<div><div style="color:var(--text3);font-size:11px;margin-bottom:2px">Nº Albarán</div><div><span class="tag">'+a.numero+'</span></div></div>'+
-    '</div>'+
-    '<table><thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio/u</th><th>IVA</th><th>Base imp.</th><th>Total</th></tr></thead>'+
-    '<tbody>'+a.lineas.map(l=>{const b=l.qty*l.precio;return'<tr><td><span class="tag">'+(l.codigo||'—')+'</span></td><td>'+l.nombre+'</td><td style="font-family:var(--mono)">'+l.qty+'</td><td style="font-family:var(--mono)">'+fmt(l.precio)+' €</td><td style="font-family:var(--mono)">'+(l.iva||10)+'%</td><td style="font-family:var(--mono)">'+fmt(b)+' €</td><td style="font-family:var(--mono);font-weight:500">'+fmt(b*(1+(l.iva||10)/100))+' €</td></tr>';}).join('')+
-    '</tbody></table>'+
-    '<div style="text-align:right;margin-top:12px;font-family:var(--mono);font-size:13px;border-top:1px solid var(--border2);padding-top:10px">'+
-    'Base imponible: <b>'+fmt(base)+' €</b> &nbsp;|&nbsp; IVA: <b>'+fmt(iva)+' €</b> &nbsp;|&nbsp; <span style="font-size:15px">Total: <b>'+fmt(base+iva)+' €</b></span></div>';
-  document.getElementById('mad-borrar').onclick=function(){if(confirm('¿Borrar este albarán?')){state.albaranes=state.albaranes.filter(x=>x.id!==id);saveState();closeModal('modal-albaran-detalle');renderAlbaranes();toast('Albarán eliminado');}};
-  openModal('modal-albaran-detalle');
-}
-
-// PEDIDO
-function generarPedido(){
-  const bajos=state.productos.filter(p=>stockTotal(p)<p.minimo);
-  const cont=document.getElementById('pedido-content');
-  if(!bajos.length){cont.innerHTML='<div class="alert alert-success"><i class="ti ti-check"></i>No hay productos bajo mínimo.</div>';return;}
-  const byProv={};
-  bajos.forEach(p=>{const pv=p.proveedor||'Sin proveedor';if(!byProv[pv])byProv[pv]=[];const pedir=Math.max(p.minimo*2-stockTotal(p),p.minimo);byProv[pv].push({...p,pedir});});
-  cont.innerHTML=Object.entries(byProv).map(([prov,prods])=>'<div class="card" style="margin-bottom:16px"><div class="card-title"><i class="ti ti-truck-delivery" style="color:var(--text3)"></i>'+prov+'</div><table><thead><tr><th>Producto</th><th>Stock total</th><th>Mínimo</th><th>Pedir</th></tr></thead><tbody>'+prods.map(p=>'<tr><td style="font-weight:500">'+p.nombre+'</td><td><span class="badge '+estadoStock(p).cls+'">'+fmt(stockTotal(p))+' '+p.unidad+'</span></td><td style="color:var(--text3);font-family:var(--mono)">'+p.minimo+'</td><td><div class="qty-ctrl"><button class="qty-btn" onclick="this.nextElementSibling.textContent=Math.max(1,parseInt(this.nextElementSibling.textContent)-1)">−</button><span style="min-width:36px;text-align:center;font-family:var(--mono);font-weight:500" data-pedido="'+p.nombre+'">'+p.pedir+'</span><button class="qty-btn" onclick="this.previousElementSibling.textContent=parseInt(this.previousElementSibling.textContent)+1">+</button><span style="color:var(--text3);font-size:12px">'+p.unidad+'</span></div></td></tr>').join('')+'</tbody></table></div>').join('');
-}
-function exportarPedido(){
-  const lines=['PEDIDO SEMANAL — '+new Date().toLocaleDateString('es-ES'),'Hotel: '+state.config.hotel,''];
-  document.querySelectorAll('#pedido-content .card').forEach(card=>{lines.push('== '+card.querySelector('.card-title').textContent.trim()+' ==');card.querySelectorAll('tbody tr').forEach(tr=>{const tds=tr.querySelectorAll('td');const nom=tds[0].textContent.trim();const cant=tr.querySelector('[data-pedido]')?.textContent.trim()||'?';const unit=tds[3].querySelector('span:last-child')?.textContent.trim()||'';lines.push('  '+nom+': '+cant+' '+unit);});lines.push('');});
-  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pedido_'+new Date().toLocaleDateString('es-ES').replace(/\//g,'-')+'.txt';a.click();
-}
-
-// PROVEEDORES
-function renderProveedores(){
-  document.getElementById('prov-table').innerHTML=state.proveedores.map(pv=>{const n=state.productos.filter(p=>p.proveedor===pv.nombre).length;return'<tr><td style="font-weight:500">'+pv.nombre+'</td><td style="color:var(--text3)">'+( pv.contacto||'—')+'</td><td style="font-family:var(--mono);font-size:12px">'+(pv.telefono||'—')+'</td><td style="color:var(--text3);font-size:12px">'+(pv.email||'—')+'</td><td><span class="badge badge-info">'+pv.cat+'</span></td><td style="font-family:var(--mono)">'+n+'</td><td><button class="btn btn-sm btn-danger" onclick="eliminarProveedor(\''+pv.id+'\')"><i class="ti ti-trash"></i></button></td></tr>';}).join('');
-}
-async function guardarProveedor(){const nombre=document.getElementById('pv-nombre').value.trim();if(!nombre){toast('Nombre obligatorio','error');return;}state.proveedores.push({id:uid(),nombre,contacto:document.getElementById('pv-contacto').value.trim(),telefono:document.getElementById('pv-telefono').value.trim(),email:document.getElementById('pv-email').value.trim(),cat:document.getElementById('pv-cat').value});saveState();closeModal('modal-proveedor');renderProveedores();toast('Proveedor añadido');}
-async function eliminarProveedor(id){if(!confirm('¿Eliminar?'))return;state.proveedores=state.proveedores.filter(p=>p.id!==id);saveState();renderProveedores();toast('Eliminado');}
-
-// PRECIOS
-function renderPrecios(){
-  const prodF=document.getElementById('precio-prod')?.value||'';
-  const provF=document.getElementById('precio-prov')?.value||'';
-  document.getElementById('precio-prod').innerHTML='<option value="">Todos los productos</option>'+state.productos.map(p=>'<option value="'+p.id+'"'+(prodF===p.id?' selected':'')+'>'+p.nombre+'</option>').join('');
-  document.getElementById('precio-prov').innerHTML='<option value="">Todos los proveedores</option>'+state.proveedores.map(p=>'<option value="'+p.nombre+'"'+(provF===p.nombre?' selected':'')+'>'+p.nombre+'</option>').join('');
-  let list=[...state.precios].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  if(prodF)list=list.filter(p=>p.prodId===prodF);
-  if(provF)list=list.filter(p=>p.proveedor===provF);
-  const byProd={};[...state.precios].sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(p=>{if(!byProd[p.prodId])byProd[p.prodId]=[];byProd[p.prodId].push(p.precio);});
-  document.getElementById('precios-table').innerHTML=list.length?list.map(p=>{
-    const hist=byProd[p.prodId]||[];const idx=hist.lastIndexOf(p.precio);const prev=idx>0?hist[idx-1]:null;
-    let varHtml='—';
-    if(prev!==null){const diff=p.precio-prev;const pct=(diff/prev*100).toFixed(1);varHtml='<span style="color:'+(diff>0?'var(--danger)':diff<0?'var(--success)':'var(--text3)')+';">'+(diff>0?'↑':'↓')+' '+Math.abs(pct)+'%</span>';}
-    const prod=state.productos.find(x=>x.id===p.prodId);
-    return '<tr><td style="font-family:var(--mono);font-size:12px;color:var(--text3)">'+fmtDate(p.fecha)+'</td><td style="font-weight:500">'+p.producto+'</td><td style="color:var(--text3);font-size:12px">'+(p.proveedor||'—')+'</td><td><span class="tag">'+(p.albaran||'—')+'</span></td><td style="font-family:var(--mono);font-weight:500">'+fmt(p.precio)+' €/'+(prod?prod.unidad:'u')+'</td><td style="font-family:var(--mono)">'+(p.iva||10)+'%</td><td>'+varHtml+'</td></tr>';
-  }).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">Sin registros</td></tr>';
-}
-
-// PEDIDOS
-let pedidosFiltro = 'todos';
-let pedidoLineas = [{}];
-
-function filterPedidos(f, btn) {
-  pedidosFiltro = f;
-  document.querySelectorAll('#sec-pedidos .tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  renderPedidos();
-}
-
-function renderPedidos() {
-  let list = [...(state.pedidos||[])].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  if(pedidosFiltro!=='todos') list = list.filter(p=>p.estado===pedidosFiltro);
-  const estadoCls = {pendiente:'badge-low', enviado:'badge-info', recibido:'badge-ok'};
-  const estadoLabel = {pendiente:'Pendiente', enviado:'Enviado', recibido:'Recibido'};
-  document.getElementById('pedidos-table').innerHTML = list.length ? list.map(p=>{
-    const total = (p.lineas||[]).reduce((s,l)=>s+l.qty*(l.precio||0),0);
-    return '<tr>'+
-      '<td style="font-family:var(--mono);font-size:12px;color:var(--text3)">'+fmtDate(p.fecha)+'</td>'+
-      '<td style="font-weight:500">'+p.proveedor+'</td>'+
-      '<td><span class="badge '+ALM_CLS[p.almacen||"central"]+'">'+ALM_LABEL[p.almacen||"central"]+'</span></td>'+
-      '<td style="font-family:var(--mono)">'+(p.lineas||[]).length+'</td>'+
-      '<td style="font-family:var(--mono);font-weight:500">'+(total>0?fmt(total)+' €':'—')+'</td>'+
-      '<td><span class="badge '+(estadoCls[p.estado]||"badge-low")+'">'+(estadoLabel[p.estado]||p.estado)+'</span></td>'+
-      '<td><button class="btn btn-sm" onclick="verPedido(\''+p.id+'\')"><i class="ti ti-eye"></i></button></td>'+
-      '</tr>';
-  }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">Sin pedidos</td></tr>';
-}
-
-function addPedidoRow() { pedidoLineas.push({}); renderPedidoLineas(); }
-function removePedidoRow(i) { pedidoLineas.splice(i,1); renderPedidoLineas(); }
-
-function renderPedidoLineas() {
-  document.getElementById('np2-lineas').innerHTML = pedidoLineas.map((l,i)=>'<tr>'+
-    '<td><select id="pl-prod-'+i+'" onchange="rellenarPrecioPedido('+i+')" style="width:100%"><option value="">Selecciona...</option>'+state.productos.map(p=>'<option value="'+p.id+'"'+(l.prodId===p.id?' selected':'')+'>'+p.nombre+'</option>').join('')+'</select></td>'+
-    '<td><input type="number" id="pl-qty-'+i+'" value="'+(l.qty||'')+'" min="0" step="0.01" style="width:80px" oninput="calcPedidoTotal()"></td>'+
-    '<td><input type="number" id="pl-pre-'+i+'" value="'+(l.precio||'')+'" min="0" step="0.01" style="width:80px" oninput="calcPedidoTotal()"></td>'+
-    '<td>'+(pedidoLineas.length>1?'<button class="qty-btn" onclick="removePedidoRow('+i+')"><i class="ti ti-x" style="font-size:11px"></i></button>':'')+'</td>'+
-    '</tr>').join('');
-  calcPedidoTotal();
-}
-
-function rellenarPrecioPedido(i) {
-  const prodId = document.getElementById('pl-prod-'+i)?.value;
-  if(!prodId) return;
-  const p = state.productos.find(x=>x.id===prodId);
-  if(!p) return;
-  const mem = getLastPrice(p.codigo||'', p.nombre||'');
-  const precio = mem ? mem.precio : (p.precioFijo||0);
-  if(precio>0) document.getElementById('pl-pre-'+i).value = precio;
-  calcPedidoTotal();
-}
-
-function calcPedidoTotal() {
-  let total = 0;
-  pedidoLineas.forEach((l,i)=>{
-    const qty = parseFloat(document.getElementById('pl-qty-'+i)?.value)||0;
-    const pre = parseFloat(document.getElementById('pl-pre-'+i)?.value)||0;
-    total += qty*pre;
-  });
-  const el = document.getElementById('np2-total');
-  if(el) el.textContent = total>0 ? 'Importe estimado: '+fmt(total)+' €' : '';
-}
-
-function autoRellenarPedido() {
-  const provNombre = document.getElementById('np2-proveedor')?.value.trim();
-  const bajos = state.productos.filter(p=>stockTotal(p)<p.minimo && (!provNombre||p.proveedor===provNombre));
-  if(!bajos.length){toast('No hay productos bajo mínimo'+(provNombre?' para este proveedor':''),'error');return;}
-  pedidoLineas = bajos.map(p=>{
-    const mem = getLastPrice(p.codigo||'',p.nombre||'');
-    const precio = mem?mem.precio:(p.precioFijo||0);
-    const pedir = Math.max(p.minimo*2-stockTotal(p),p.minimo);
-    return {prodId:p.id, qty:pedir, precio};
-  });
-  renderPedidoLineas();
-  toast('Pedido rellenado con '+bajos.length+' productos bajo mínimo');
-}
-
-async function guardarPedido() {
-  const proveedor = document.getElementById('np2-proveedor')?.value.trim();
-  if(!proveedor){toast('Indica el proveedor','error');return;}
-  const fecha = document.getElementById('np2-fecha')?.value;
-  const almacen = document.getElementById('np2-almacen')?.value;
-  const notas = document.getElementById('np2-notas')?.value.trim();
-  const lineas = [];
-  pedidoLineas.forEach((l,i)=>{
-    const prodId = document.getElementById('pl-prod-'+i)?.value;
-    const qty = parseFloat(document.getElementById('pl-qty-'+i)?.value)||0;
-    const precio = parseFloat(document.getElementById('pl-pre-'+i)?.value)||0;
-    if(!prodId||qty<=0) return;
-    const p = state.productos.find(x=>x.id===prodId);
-    if(p) lineas.push({prodId,codigo:p.codigo,nombre:p.nombre,unidad:p.unidad,qty,precio});
-  });
-  if(!lineas.length){toast('Añade al menos un producto','error');return;}
-  if(!state.pedidos) state.pedidos = [];
-  const np={id:uid(),fecha,proveedor,almacen,notas,estado:'pendiente',lineas};state.pedidos.push(np);
-  await apiPost('/api/pedidos',np);
-  closeModal('modal-nuevo-pedido');
-  pedidoLineas=[{}];
-  renderPedidos();
-  toast('Pedido guardado');
-}
-
-function verPedido(id) {
-  const p = state.pedidos?.find(x=>x.id===id);
-  if(!p) return;
-  const estadoLabel = {pendiente:'Pendiente',enviado:'Enviado',recibido:'Recibido'};
-  const estadoCls = {pendiente:'badge-low',enviado:'badge-info',recibido:'badge-ok'};
-  const total = (p.lineas||[]).reduce((s,l)=>s+l.qty*(l.precio||0),0);
-  document.getElementById('mvp-titulo').textContent = 'Pedido — '+p.proveedor+' ('+fmtDate(p.fecha)+')';
-  document.getElementById('mvp-content').innerHTML =
-    '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:13px">'+
-    '<div><span style="color:var(--text3)">Proveedor: </span><b>'+p.proveedor+'</b></div>'+
-    '<div><span style="color:var(--text3)">Almacén: </span><span class="badge '+ALM_CLS[p.almacen||"central"]+'">'+ALM_LABEL[p.almacen||"central"]+'</span></div>'+
-    '<div><span style="color:var(--text3)">Estado: </span><span class="badge '+(estadoCls[p.estado]||"badge-low")+'">'+(estadoLabel[p.estado]||p.estado)+'</span></div>'+
-    (p.notas?'<div><span style="color:var(--text3)">Notas: </span>'+p.notas+'</div>':'')+
-    '</div>'+
-    '<table><thead><tr><th>Producto</th><th>Cantidad pedida</th><th>Cant. recibida</th><th>Precio est.</th></tr></thead>'+
-    '<tbody>'+(p.lineas||[]).map((l,i)=>'<tr>'+
-      '<td style="font-weight:500">'+l.nombre+'</td>'+
-      '<td style="font-family:var(--mono)">'+l.qty+' '+l.unidad+'</td>'+
-      '<td>'+(p.estado!=='recibido'?'<input type="number" id="recv-qty-'+i+'" value="'+l.qty+'" min="0" step="0.01" style="width:80px">':'<span style="font-family:var(--mono)">'+(l.qtyRecibida||l.qty)+' '+l.unidad+'</span>')+'</td>'+
-      '<td style="font-family:var(--mono)">'+(l.precio>0?fmt(l.precio)+' €':'—')+'</td>'+
-      '</tr>').join('')+
-    '</tbody></table>'+
-    '<div style="text-align:right;margin-top:10px;font-family:var(--mono);font-size:13px;color:var(--text3)">'+
-    (total>0?'Importe estimado: <b>'+fmt(total)+' €</b>':'')+
-    '</div>';
-  const footer = document.getElementById('mvp-footer');
-  footer.innerHTML = '';
-  const btnCerrar = document.createElement('button');
-  btnCerrar.className='btn'; btnCerrar.innerHTML='Cerrar';
-  btnCerrar.onclick=()=>closeModal('modal-ver-pedido');
-  footer.appendChild(btnCerrar);
-  if(p.estado==='pendiente') {
-    const btnEnv = document.createElement('button');
-    btnEnv.className='btn btn-warn'; btnEnv.innerHTML='<i class="ti ti-send"></i> Marcar como enviado';
-    btnEnv.onclick=()=>{p.estado='enviado';saveState();closeModal('modal-ver-pedido');renderPedidos();toast('Pedido marcado como enviado');};
-    footer.appendChild(btnEnv);
-  }
-  if(p.estado!=='recibido') {
-    const btnRecv = document.createElement('button');
-    btnRecv.className='btn btn-primary'; btnRecv.innerHTML='<i class="ti ti-truck-delivery"></i> Marcar recibido y crear albarán';
-    btnRecv.onclick=()=>recibirPedido(id);
-    footer.appendChild(btnRecv);
-  }
-  const btnBorrar = document.createElement('button');
-  btnBorrar.className='btn btn-danger'; btnBorrar.innerHTML='<i class="ti ti-trash"></i> Borrar';
-  btnBorrar.onclick=()=>{if(confirm('¿Borrar pedido?')){state.pedidos=state.pedidos.filter(x=>x.id!==id);saveState();closeModal('modal-ver-pedido');renderPedidos();toast('Pedido eliminado');}};
-  footer.appendChild(btnBorrar);
-  openModal('modal-ver-pedido');
-}
-
-async function recibirPedido(id) {
-  const p = state.pedidos?.find(x=>x.id===id);
-  if(!p) return;
-  const fecha = new Date().toISOString().split('T')[0];
-  const usuario = state.config.usuario||'Admin';
-  const lineasAlb = [];
-  (p.lineas||[]).forEach((l,i)=>{
-    const qtyRecibida = parseFloat(document.getElementById('recv-qty-'+i)?.value)||l.qty;
-    l.qtyRecibida = qtyRecibida;
-    if(qtyRecibida<=0) return;
-    const prod = state.productos.find(x=>x.id===l.prodId);
-    if(!prod) return;
-    setStockAlmacen(prod, p.almacen, stockAlmacen(prod,p.almacen)+qtyRecibida);
-    if(l.precio>0) state.precios.push({fecha,prodId:prod.id,producto:prod.nombre,proveedor:p.proveedor,albaran:'PED-'+id.substr(1,6),precio:l.precio,iva:prod.iva||10});
-    state.movimientos.unshift({fecha,producto:prod.nombre,tipo:'Entrada',cant:'+'+qtyRecibida+' '+prod.unidad,desde:p.proveedor,hasta:p.almacen,usuario});
-    lineasAlb.push({codigo:prod.codigo,nombre:prod.nombre,lote:'',cad:null,qty:qtyRecibida,precio:l.precio||0,iva:prod.iva||10});
-  });
-  state.albaranes.push({id:uid(),fecha,numero:'PED-'+id.substr(1,6),proveedor:p.proveedor,almacen:p.almacen,lineas:lineasAlb});
-  p.estado = 'recibido';
-  saveState();
-  closeModal('modal-ver-pedido');
-  renderPedidos();
-  toast('Pedido recibido. Albarán y stock actualizados.');
-}
-
-// INVENTARIO
-let invAlmacen = 'central';
-let invRecuentos = {};
-
-function selectInvAlmacen(alm, card) {
-  invAlmacen = alm;
-  invRecuentos = {};
-  document.querySelectorAll('#inv-almacen-select > div').forEach(d=>{
-    d.style.border='1px solid var(--border2)';
-    d.style.background='';
-  });
-  if(card){card.style.border='2px solid var(--accent)';card.style.background='var(--accent-light)';}
-  renderInventario();
-}
-
-function renderInventario() {
-  ['central','cocina','restaurante'].forEach(alm=>{
-    const n = state.productos.filter(p=>stockAlmacen(p,alm)>0).length;
-    const el = document.getElementById('inv-count-'+alm);
-    if(el) el.textContent = n+' productos con stock';
-  });
-  const prods = state.productos.filter(p=>p.cat!=='Limpieza');
-  document.getElementById('inventario-table').innerHTML = prods.map((p,i)=>{
-    const teorico = stockAlmacen(p,invAlmacen);
-    const recuento = invRecuentos[p.id]!==undefined ? invRecuentos[p.id] : '';
-    const diff = recuento!=='' ? parseFloat(recuento)-teorico : null;
-    const precio = p.precioFijo||0;
-    const valDiff = diff!==null ? diff*precio : null;
-    return '<tr>'+
-      '<td style="font-weight:500">'+p.nombre+'</td>'+
-      '<td style="font-family:var(--mono)">'+fmt(teorico)+' '+p.unidad+'</td>'+
-      '<td><input type="number" id="inv-rec-'+p.id+'" value="'+(recuento)+'" min="0" step="0.01" style="width:90px" placeholder="—" oninput="actualizarRecuento(this.dataset.pid)" data-pid="'+p.id+'">"></td>'+
-      '<td style="font-family:var(--mono);font-weight:500;color:'+(diff===null?'var(--text3)':diff<0?'var(--danger)':diff>0?'var(--warn)':'var(--success)')+'">'+(diff===null?'—':(diff>=0?'+':'')+fmt(diff)+' '+p.unidad)+'</td>'+
-      '<td style="font-family:var(--mono);font-size:12px;color:'+(valDiff===null?'var(--text3)':valDiff<0?'var(--danger)':'var(--warn)')+'">'+(valDiff===null?'—':(valDiff>=0?'+':'')+fmt(valDiff)+' €')+'</td>'+
-      '</tr>';
-  }).join('');
-  actualizarResumenInv();
-  renderInvHistorial();
-}
-
-function actualizarRecuento(prodId) {
-  const val = parseFloat(document.getElementById('inv-rec-'+prodId)?.value);
-  if(!isNaN(val)) invRecuentos[prodId] = val;
-  else delete invRecuentos[prodId];
-  actualizarResumenInv();
-}
-
-function actualizarResumenInv() {
-  let totalDiff = 0, totalVal = 0, n = 0;
-  state.productos.forEach(p=>{
-    if(invRecuentos[p.id]===undefined) return;
-    const teorico = stockAlmacen(p,invAlmacen);
-    const diff = invRecuentos[p.id]-teorico;
-    totalDiff += diff;
-    totalVal += diff*(p.precioFijo||0);
-    n++;
-  });
-  const el = document.getElementById('inv-resumen');
-  if(el) el.textContent = n>0 ? n+' productos contados · Diferencia total: '+fmt(totalDiff)+' · Valoración: '+fmt(totalVal)+' €' : '';
-}
-
-async function guardarInventario() {
-  const n = Object.keys(invRecuentos).length;
-  if(!n){toast('No has introducido ningún recuento','error');return;}
-  if(!state.inventarios) state.inventarios = [];
-  const fecha = new Date().toISOString().split('T')[0];
-  const usuario = state.config.usuario||'Admin';
-  const lineas = [];
-  let totalDiff=0, totalVal=0;
-  state.productos.forEach(p=>{
-    if(invRecuentos[p.id]===undefined) return;
-    const teorico = stockAlmacen(p,invAlmacen);
-    const real = invRecuentos[p.id];
-    const diff = real-teorico;
-    lineas.push({prodId:p.id,nombre:p.nombre,teorico,real,diff,precio:p.precioFijo||0});
-    totalDiff+=diff; totalVal+=diff*(p.precioFijo||0);
-    // Actualizar stock con el recuento real
-    setStockAlmacen(p,invAlmacen,real);
-    if(diff!==0) state.movimientos.unshift({fecha,producto:p.nombre,tipo:'Ajuste inventario',cant:(diff>=0?'+':'')+fmt(diff)+' '+p.unidad,desde:ALM_LABEL[invAlmacen],hasta:invAlmacen,usuario});
-  });
-  const inv={id:uid(),fecha,almacen:invAlmacen,lineas,totalDiff,totalVal,usuario};state.inventarios.push(inv);await apiPost('/api/inventarios',inv);
-  saveState();
-  invRecuentos={};
-  renderInventario();
-  toast('Inventario guardado. Stock ajustado.');
-}
-
-function renderInvHistorial() {
-  const hist = (state.inventarios||[]).filter(i=>i.almacen===invAlmacen).sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,10);
-  document.getElementById('inv-historial').innerHTML = hist.length ? hist.map(inv=>'<tr>'+
-    '<td style="font-family:var(--mono);font-size:12px;color:var(--text3)">'+fmtDate(inv.fecha)+'</td>'+
-    '<td><span class="badge '+ALM_CLS[inv.almacen]+'">'+ALM_LABEL[inv.almacen]+'</span></td>'+
-    '<td style="font-family:var(--mono)">'+(inv.lineas||[]).length+'</td>'+
-    '<td style="font-family:var(--mono);color:'+(inv.totalDiff<0?'var(--danger)':inv.totalDiff>0?'var(--warn)':'var(--success)')+'">'+(inv.totalDiff>=0?'+':'')+fmt(inv.totalDiff)+'</td>'+
-    '<td style="font-family:var(--mono);font-weight:500;color:'+(inv.totalVal<0?'var(--danger)':'var(--text)')+'">'+(inv.totalVal>=0?'+':'')+fmt(inv.totalVal)+' €</td>'+
-    '</tr>').join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">Sin inventarios anteriores</td></tr>';
-}
-
-function imprimirInventario() {
-  const prods = state.productos.filter(p=>p.cat!=='Limpieza');
-  const win = window.open('','_blank');
-  win.document.write('<html><head><title>Inventario '+ALM_LABEL[invAlmacen]+' — '+new Date().toLocaleDateString("es-ES")+'</title>');
-  win.document.write('<style>body{font-family:sans-serif;font-size:13px;padding:20px}h1{font-size:18px;margin-bottom:4px}h2{font-size:13px;color:#666;font-weight:normal;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#f5f5f5;padding:8px;text-align:left;border:1px solid #ddd;font-size:12px}td{padding:8px;border:1px solid #ddd}td.count{width:120px;background:#fffbe6}.footer{margin-top:30px;font-size:11px;color:#999}</style>');
-  win.document.write('</head><body>');
-  win.document.write('<h1>Hoja de inventario — '+ALM_LABEL[invAlmacen]+'</h1>');
-  win.document.write('<h2>'+new Date().toLocaleDateString("es-ES",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+' · Responsable: ________________</h2>');
-  win.document.write('<table><thead><tr><th>Código</th><th>Producto</th><th>Unidad</th><th>Recuento</th></tr></thead><tbody>');
-  prods.forEach(p=>{
-    win.document.write('<tr><td>'+(p.codigo||'—')+'</td><td>'+p.nombre+'</td><td>'+p.unidad+'</td><td class="count">&nbsp;</td></tr>');
-  });
-  win.document.write('</tbody></table>');
-  win.document.write('<div class="footer">Hotel Cortijo Chico · Economato · Impreso el '+new Date().toLocaleString("es-ES")+'</div>');
-  win.document.write('</body></html>');
-  win.document.close();
-  win.print();
-}
+// ===== API ROUTES =====
 
 // CONFIG
-async function saveConfig(){state.config.hotel=document.getElementById('cfg-hotel').value;state.config.cadDias=parseInt(document.getElementById('cfg-cad-dias').value)||7;state.config.usuario=document.getElementById('cfg-usuario').value;await apiPost('/api/config',{hotel:state.config.hotel,cad_dias:state.config.cadDias,usuario:state.config.usuario});toast('Configuración guardada');}
-function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='economato_backup.json';a.click();}
-function clearData(){localStorage.removeItem('economato_v3');location.reload();}
-
-// INIT
-document.addEventListener('DOMContentLoaded', async function(){
-  window._navImpl=_navImpl;
-  _navQueue.forEach(function(a){_navImpl(a[0],a[1]);});
-  _navQueue=[];
-  document.getElementById('today-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
-  await loadState();
-  const oldData=localStorage.getItem('economato_v3');
-  if(oldData){try{const od=JSON.parse(oldData);if(od.productos&&od.productos.length>0&&state.productos.length===0){await fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(od)});await loadState();localStorage.removeItem('economato_v3');toast('Datos migrados a la base de datos');}}catch(e){}}
-  if(!state.pedidos)state.pedidos=[];
-  if(!state.inventarios)state.inventarios=[];
-  renderDashboard();
+app.get('/api/config', async (req, res) => {
+  const r = await pool.query('SELECT key, value FROM config');
+  const cfg = {};
+  r.rows.forEach(row => cfg[row.key] = row.value);
+  res.json(cfg);
 });
-</script>
-</body>
-</html>
+app.post('/api/config', async (req, res) => {
+  const { hotel, cad_dias, usuario } = req.body;
+  await pool.query(`INSERT INTO config(key,value) VALUES ('hotel',$1),('cad_dias',$2),('usuario',$3)
+    ON CONFLICT(key) DO UPDATE SET value=EXCLUDED.value`, [hotel, cad_dias, usuario]);
+  res.json({ ok: true });
+});
+
+// PRODUCTOS
+app.get('/api/productos', async (req, res) => {
+  const r = await pool.query('SELECT * FROM productos ORDER BY nombre');
+  res.json(r.rows.map(dbToProducto));
+});
+app.post('/api/productos', async (req, res) => {
+  const p = req.body;
+  await pool.query(`INSERT INTO productos(id,codigo,nombre,cat,stock_central,stock_cocina,stock_restaurante,minimo,unidad,proveedor,precio_fijo,iva,notas)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+    ON CONFLICT(id) DO UPDATE SET codigo=$2,nombre=$3,cat=$4,stock_central=$5,stock_cocina=$6,stock_restaurante=$7,minimo=$8,unidad=$9,proveedor=$10,precio_fijo=$11,iva=$12,notas=$13`,
+    [p.id,p.codigo||'',p.nombre,p.cat||'Varios',p.stockCentral||0,p.stockCocina||0,p.stockRestaurante||0,p.minimo||0,p.unidad||'kg',p.proveedor||'',p.precioFijo||0,p.iva||10,p.notas||'']);
+  res.json({ ok: true });
+});
+app.put('/api/productos/:id/stock', async (req, res) => {
+  const { almacen, cantidad } = req.body;
+  const col = 'stock_' + almacen;
+  await pool.query(`UPDATE productos SET ${col}=$1 WHERE id=$2`, [cantidad, req.params.id]);
+  res.json({ ok: true });
+});
+app.delete('/api/productos/:id', async (req, res) => {
+  await pool.query('DELETE FROM productos WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// PROVEEDORES
+app.get('/api/proveedores', async (req, res) => {
+  const r = await pool.query('SELECT * FROM proveedores ORDER BY nombre');
+  res.json(r.rows.map(r => ({ id: r.id, nombre: r.nombre, contacto: r.contacto, telefono: r.telefono, email: r.email, cat: r.cat, notas: r.notas })));
+});
+app.post('/api/proveedores', async (req, res) => {
+  const p = req.body;
+  await pool.query(`INSERT INTO proveedores(id,nombre,contacto,telefono,email,cat,notas) VALUES($1,$2,$3,$4,$5,$6,$7)
+    ON CONFLICT(id) DO UPDATE SET nombre=$2,contacto=$3,telefono=$4,email=$5,cat=$6,notas=$7`,
+    [p.id,p.nombre,p.contacto||'',p.telefono||'',p.email||'',p.cat||'Varios',p.notas||'']);
+  res.json({ ok: true });
+});
+app.delete('/api/proveedores/:id', async (req, res) => {
+  await pool.query('DELETE FROM proveedores WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ALBARANES
+app.get('/api/albaranes', async (req, res) => {
+  const r = await pool.query('SELECT * FROM albaranes ORDER BY fecha DESC, created_at DESC');
+  res.json(r.rows.map(r => ({ id: r.id, fecha: r.fecha?.toISOString().split('T')[0], numero: r.numero, proveedor: r.proveedor, almacen: r.almacen, lineas: r.lineas })));
+});
+app.post('/api/albaranes', async (req, res) => {
+  const a = req.body;
+  await pool.query('INSERT INTO albaranes(id,fecha,numero,proveedor,almacen,lineas) VALUES($1,$2,$3,$4,$5,$6)',
+    [a.id, a.fecha, a.numero, a.proveedor, a.almacen, JSON.stringify(a.lineas||[])]);
+  res.json({ ok: true });
+});
+app.delete('/api/albaranes/:id', async (req, res) => {
+  await pool.query('DELETE FROM albaranes WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// PEDIDOS
+app.get('/api/pedidos', async (req, res) => {
+  const r = await pool.query('SELECT * FROM pedidos ORDER BY fecha DESC, created_at DESC');
+  res.json(r.rows.map(r => ({ id: r.id, fecha: r.fecha?.toISOString().split('T')[0], proveedor: r.proveedor, almacen: r.almacen, estado: r.estado, notas: r.notas, lineas: r.lineas })));
+});
+app.post('/api/pedidos', async (req, res) => {
+  const p = req.body;
+  await pool.query('INSERT INTO pedidos(id,fecha,proveedor,almacen,estado,notas,lineas) VALUES($1,$2,$3,$4,$5,$6,$7)',
+    [p.id, p.fecha, p.proveedor, p.almacen, p.estado||'pendiente', p.notas||'', JSON.stringify(p.lineas||[])]);
+  res.json({ ok: true });
+});
+app.put('/api/pedidos/:id', async (req, res) => {
+  const p = req.body;
+  await pool.query('UPDATE pedidos SET estado=$1, lineas=$2 WHERE id=$3',
+    [p.estado, JSON.stringify(p.lineas||[]), req.params.id]);
+  res.json({ ok: true });
+});
+app.delete('/api/pedidos/:id', async (req, res) => {
+  await pool.query('DELETE FROM pedidos WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// LOTES
+app.get('/api/lotes', async (req, res) => {
+  const r = await pool.query('SELECT * FROM lotes ORDER BY fecha_cad ASC');
+  res.json(r.rows.map(r => ({ id: r.id, prodId: r.prod_id, lote: r.lote, almacen: r.almacen, proveedor: r.proveedor, fechaEntrada: r.fecha_entrada?.toISOString().split('T')[0], fechaCad: r.fecha_cad?.toISOString().split('T')[0], cantidad: parseFloat(r.cantidad) })));
+});
+app.post('/api/lotes', async (req, res) => {
+  const l = req.body;
+  await pool.query('INSERT INTO lotes(id,prod_id,lote,almacen,proveedor,fecha_entrada,fecha_cad,cantidad) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
+    [l.id, l.prodId, l.lote||'', l.almacen||'central', l.proveedor||'', l.fechaEntrada, l.fechaCad||null, l.cantidad||0]);
+  res.json({ ok: true });
+});
+
+// MOVIMIENTOS
+app.get('/api/movimientos', async (req, res) => {
+  const r = await pool.query('SELECT * FROM movimientos ORDER BY created_at DESC LIMIT 100');
+  res.json(r.rows.map(r => ({ fecha: r.fecha?.toISOString().split('T')[0], producto: r.producto, tipo: r.tipo, cant: r.cant, desde: r.desde, hasta: r.hasta, usuario: r.usuario })));
+});
+app.post('/api/movimientos', async (req, res) => {
+  const m = req.body;
+  await pool.query('INSERT INTO movimientos(fecha,producto,tipo,cant,desde,hasta,usuario) VALUES($1,$2,$3,$4,$5,$6,$7)',
+    [m.fecha, m.producto, m.tipo, m.cant, m.desde||'', m.hasta||'', m.usuario||'']);
+  res.json({ ok: true });
+});
+
+// PRECIOS
+app.get('/api/precios', async (req, res) => {
+  const r = await pool.query('SELECT * FROM precios ORDER BY fecha DESC, created_at DESC LIMIT 500');
+  res.json(r.rows.map(r => ({ fecha: r.fecha?.toISOString().split('T')[0], prodId: r.prod_id, producto: r.producto, proveedor: r.proveedor, albaran: r.albaran, precio: parseFloat(r.precio), iva: r.iva })));
+});
+app.post('/api/precios', async (req, res) => {
+  const p = req.body;
+  await pool.query('INSERT INTO precios(fecha,prod_id,producto,proveedor,albaran,precio,iva) VALUES($1,$2,$3,$4,$5,$6,$7)',
+    [p.fecha, p.prodId, p.producto, p.proveedor||'', p.albaran||'', p.precio, p.iva||10]);
+  res.json({ ok: true });
+});
+
+// INVENTARIOS
+app.get('/api/inventarios', async (req, res) => {
+  const r = await pool.query('SELECT * FROM inventarios ORDER BY fecha DESC');
+  res.json(r.rows.map(r => ({ id: r.id, fecha: r.fecha?.toISOString().split('T')[0], almacen: r.almacen, lineas: r.lineas, totalDiff: parseFloat(r.total_diff), totalVal: parseFloat(r.total_val), usuario: r.usuario })));
+});
+app.post('/api/inventarios', async (req, res) => {
+  const inv = req.body;
+  await pool.query('INSERT INTO inventarios(id,fecha,almacen,lineas,total_diff,total_val,usuario) VALUES($1,$2,$3,$4,$5,$6,$7)',
+    [inv.id, inv.fecha, inv.almacen, JSON.stringify(inv.lineas||[]), inv.totalDiff||0, inv.totalVal||0, inv.usuario||'']);
+  res.json({ ok: true });
+});
+
+// BUSCAR PRODUCTOS (para autocompletado)
+app.get('/api/buscar/productos', async (req, res) => {
+  const q = '%' + (req.query.q||'') + '%';
+  const r = await pool.query('SELECT * FROM productos WHERE nombre ILIKE $1 OR codigo ILIKE $1 ORDER BY nombre LIMIT 20', [q]);
+  res.json(r.rows.map(dbToProducto));
+});
+
+// BUSCAR PROVEEDORES
+app.get('/api/buscar/proveedores', async (req, res) => {
+  const q = '%' + (req.query.q||'') + '%';
+  const r = await pool.query('SELECT * FROM proveedores WHERE nombre ILIKE $1 ORDER BY nombre LIMIT 10', [q]);
+  res.json(r.rows);
+});
+
+// LEER ALBARÁN CON IA
+app.post('/api/leer-albaran', upload.single('albaran'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se recibió archivo' });
+    const base64 = req.file.buffer.toString('base64');
+    let mediaType = req.file.mimetype;
+    if (mediaType === 'image/jpg') mediaType = 'image/jpeg';
+    const isPDF = mediaType === 'application/pdf';
+    const validImage = ['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType);
+    if (!isPDF && !validImage) mediaType = 'image/jpeg';
+
+    // Get existing products for matching
+    const prodsResult = await pool.query('SELECT id, codigo, nombre, iva, precio_fijo FROM productos ORDER BY nombre');
+    const catalogoJSON = JSON.stringify(prodsResult.rows.map(p => ({ id: p.id, codigo: p.codigo, nombre: p.nombre })));
+
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: [
+          isPDF
+            ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }
+            : { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: `Eres un asistente de economato de hostelería. Analiza este albarán y extrae ÚNICAMENTE un JSON válido sin texto adicional ni backticks.
+
+Catálogo existente (intenta hacer matching por nombre o código):
+${catalogoJSON}
+
+Formato de respuesta:
+{
+  "proveedor": "nombre completo",
+  "numero_albaran": "número",
+  "fecha": "DD/MM/YYYY",
+  "total": numero,
+  "productos": [
+    {
+      "codigo": "código si aparece",
+      "nombre": "descripción",
+      "prod_id_match": "id del producto del catálogo si encuentras coincidencia o null",
+      "lote": "lote si aparece o null",
+      "fecha_caducidad": "DD/MM/YYYY si aparece o null",
+      "kilos": numero_o_null,
+      "unidades": numero_o_null,
+      "precio_unitario": numero,
+      "importe": numero
+    }
+  ]
+}` }
+        ]
+      }]
+    });
+
+    const text = response.content[0].text.trim().replace(/```json|```/g, '').trim();
+    const data = JSON.parse(text);
+
+    // Enrich with DB data for matched products
+    for (const p of data.productos || []) {
+      if (p.prod_id_match) {
+        const match = prodsResult.rows.find(r => r.id === p.prod_id_match);
+        if (match) {
+          p.iva_sugerido = match.iva;
+          p.precio_sugerido = parseFloat(match.precio_fijo) || p.precio_unitario;
+        }
+      }
+      // Also try to find last price
+      if (p.codigo || p.nombre) {
+        const lastPrice = await pool.query(
+          `SELECT precio, iva FROM precios WHERE producto ILIKE $1 OR (SELECT codigo FROM productos WHERE id=prod_id) = $2 ORDER BY fecha DESC LIMIT 1`,
+          ['%' + p.nombre + '%', p.codigo || '']
+        );
+        if (lastPrice.rows.length > 0 && !p.precio_unitario) {
+          p.precio_unitario = parseFloat(lastPrice.rows[0].precio);
+          p.iva_sugerido = lastPrice.rows[0].iva;
+        }
+      }
+    }
+
+    res.json({ ok: true, data });
+  } catch (err) {
+    console.error('Error leyendo albarán:', err);
+    res.status(500).json({ error: 'No se pudo procesar el albarán', detail: err.message });
+  }
+});
+
+// SYNC - recibe todo el estado del frontend y lo sincroniza
+app.post('/api/sync', async (req, res) => {
+  const { productos, proveedores, albaranes, pedidos, lotes, movimientos, precios, inventarios, config } = req.body;
+  const client2 = await pool.connect();
+  try {
+    await client2.query('BEGIN');
+    if (productos?.length) {
+      for (const p of productos) {
+        await client2.query(`INSERT INTO productos(id,codigo,nombre,cat,stock_central,stock_cocina,stock_restaurante,minimo,unidad,proveedor,precio_fijo,iva,notas)
+          VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+          ON CONFLICT(id) DO UPDATE SET codigo=$2,nombre=$3,cat=$4,stock_central=$5,stock_cocina=$6,stock_restaurante=$7,minimo=$8,unidad=$9,proveedor=$10,precio_fijo=$11,iva=$12,notas=$13`,
+          [p.id,p.codigo||'',p.nombre,p.cat||'Varios',p.stockCentral||0,p.stockCocina||0,p.stockRestaurante||0,p.minimo||0,p.unidad||'kg',p.proveedor||'',p.precioFijo||0,p.iva||10,p.notas||'']);
+      }
+    }
+    if (proveedores?.length) {
+      for (const p of proveedores) {
+        await client2.query(`INSERT INTO proveedores(id,nombre,contacto,telefono,email,cat,notas) VALUES($1,$2,$3,$4,$5,$6,$7)
+          ON CONFLICT(id) DO UPDATE SET nombre=$2,contacto=$3,telefono=$4,email=$5,cat=$6,notas=$7`,
+          [p.id,p.nombre,p.contacto||'',p.telefono||'',p.email||'',p.cat||'Varios',p.notas||'']);
+      }
+    }
+    await client2.query('COMMIT');
+    res.json({ ok: true });
+  } catch (err) {
+    await client2.query('ROLLBACK');
+    res.status(500).json({ error: err.message });
+  } finally {
+    client2.release();
+  }
+});
+
+// LOAD ALL - carga todo para el frontend
+app.get('/api/load', async (req, res) => {
+  try {
+    const [productos, proveedores, albaranes, pedidos, lotes, movimientos, precios, inventarios, cfg] = await Promise.all([
+      pool.query('SELECT * FROM productos ORDER BY nombre'),
+      pool.query('SELECT * FROM proveedores ORDER BY nombre'),
+      pool.query('SELECT * FROM albaranes ORDER BY fecha DESC LIMIT 200'),
+      pool.query('SELECT * FROM pedidos ORDER BY fecha DESC LIMIT 100'),
+      pool.query('SELECT * FROM lotes ORDER BY fecha_cad ASC'),
+      pool.query('SELECT * FROM movimientos ORDER BY created_at DESC LIMIT 200'),
+      pool.query('SELECT * FROM precios ORDER BY fecha DESC LIMIT 1000'),
+      pool.query('SELECT * FROM inventarios ORDER BY fecha DESC LIMIT 50'),
+      pool.query('SELECT key, value FROM config'),
+    ]);
+    const config = {};
+    cfg.rows.forEach(r => config[r.key] = r.value);
+    res.json({
+      productos: productos.rows.map(dbToProducto),
+      proveedores: proveedores.rows.map(r => ({ id: r.id, nombre: r.nombre, contacto: r.contacto||'', telefono: r.telefono||'', email: r.email||'', cat: r.cat||'', notas: r.notas||'' })),
+      albaranes: albaranes.rows.map(r => ({ id: r.id, fecha: r.fecha?.toISOString().split('T')[0], numero: r.numero, proveedor: r.proveedor, almacen: r.almacen, lineas: r.lineas })),
+      pedidos: pedidos.rows.map(r => ({ id: r.id, fecha: r.fecha?.toISOString().split('T')[0], proveedor: r.proveedor, almacen: r.almacen, estado: r.estado, notas: r.notas||'', lineas: r.lineas })),
+      lotes: lotes.rows.map(r => ({ id: r.id, prodId: r.prod_id, lote: r.lote||'', almacen: r.almacen, proveedor: r.proveedor||'', fechaEntrada: r.fecha_entrada?.toISOString().split('T')[0], fechaCad: r.fecha_cad?.toISOString().split('T')[0], cantidad: parseFloat(r.cantidad) })),
+      movimientos: movimientos.rows.map(r => ({ fecha: r.fecha?.toISOString().split('T')[0], producto: r.producto, tipo: r.tipo, cant: r.cant, desde: r.desde||'', hasta: r.hasta||'', usuario: r.usuario||'' })),
+      precios: precios.rows.map(r => ({ fecha: r.fecha?.toISOString().split('T')[0], prodId: r.prod_id, producto: r.producto, proveedor: r.proveedor||'', albaran: r.albaran||'', precio: parseFloat(r.precio), iva: r.iva })),
+      inventarios: inventarios.rows.map(r => ({ id: r.id, fecha: r.fecha?.toISOString().split('T')[0], almacen: r.almacen, lineas: r.lineas, totalDiff: parseFloat(r.total_diff), totalVal: parseFloat(r.total_val), usuario: r.usuario||'' })),
+      config: { hotel: config.hotel||'Hotel Cortijo Chico', cadDias: parseInt(config.cad_dias)||7, usuario: config.usuario||'Administrador' }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+function dbToProducto(r) {
+  return { id: r.id, codigo: r.codigo||'', nombre: r.nombre, cat: r.cat||'', stockCentral: parseFloat(r.stock_central)||0, stockCocina: parseFloat(r.stock_cocina)||0, stockRestaurante: parseFloat(r.stock_restaurante)||0, minimo: parseFloat(r.minimo)||0, unidad: r.unidad||'kg', proveedor: r.proveedor||'', precioFijo: parseFloat(r.precio_fijo)||0, iva: r.iva||10, notas: r.notas||'' };
+}
+
+const PORT = process.env.PORT || 3000;
+initDB().then(() => {
+  app.listen(PORT, () => console.log(`Economato server on port ${PORT}`));
+}).catch(err => {
+  console.error('DB init failed:', err);
+  process.exit(1);
+});
