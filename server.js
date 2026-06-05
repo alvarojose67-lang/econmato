@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 const path = require('path');
 
 const app = express();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const pool = new Pool({
@@ -281,7 +281,9 @@ app.post('/api/leer-albaran', upload.single('albaran'), async (req, res) => {
     const base64 = req.file.buffer.toString('base64');
     let mediaType = req.file.mimetype;
     if (mediaType === 'image/jpg') mediaType = 'image/jpeg';
-    if (!['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType)) mediaType = 'image/jpeg';
+    const isPDF = mediaType === 'application/pdf';
+    const validImage = ['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType);
+    if (!isPDF && !validImage) mediaType = 'image/jpeg';
 
     // Get existing products for matching
     const prodsResult = await pool.query('SELECT id, codigo, nombre, iva, precio_fijo FROM productos ORDER BY nombre');
@@ -293,7 +295,9 @@ app.post('/api/leer-albaran', upload.single('albaran'), async (req, res) => {
       messages: [{
         role: 'user',
         content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          isPDF
+            ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }
+            : { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
           { type: 'text', text: `Eres un asistente de economato de hostelería. Analiza este albarán y extrae ÚNICAMENTE un JSON válido sin texto adicional ni backticks.
 
 Catálogo existente (intenta hacer matching por nombre o código):
