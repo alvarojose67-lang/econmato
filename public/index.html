@@ -738,7 +738,7 @@ function renderProductos(){
   }).join('');
 }
 
-function guardarProducto(){
+async function guardarProducto(){
   const nombre=document.getElementById('np-nombre').value.trim();
   if(!nombre){toast('Nombre obligatorio','error');return;}
   state.productos.push({id:uid(),codigo:document.getElementById('np-codigo').value.trim(),nombre,cat:document.getElementById('np-cat').value,stockCentral:0,stockCocina:0,stockRestaurante:0,minimo:parseFloat(document.getElementById('np-minimo').value)||0,unidad:document.getElementById('np-unidad').value,proveedor:document.getElementById('np-proveedor').value.trim(),precioFijo:parseFloat(document.getElementById('np-precio').value)||0,iva:parseInt(document.getElementById('np-iva').value)||10});
@@ -759,7 +759,7 @@ function editProducto(id){
   openModal('modal-edit-producto');
 }
 
-function actualizarProducto(){
+async function actualizarProducto(){
   const id=document.getElementById('ep-id').value;
   const p=state.productos.find(x=>x.id===id);if(!p)return;
   p.codigo=document.getElementById('ep-codigo').value.trim();
@@ -773,7 +773,7 @@ function actualizarProducto(){
   await apiPost('/api/productos',p);closeModal('modal-edit-producto');renderProductos();toast('Producto actualizado');
 }
 
-function eliminarProducto(id){
+async function eliminarProducto(id){
   if(!confirm('¿Eliminar?'))return;
   state.productos=state.productos.filter(p=>p.id!==id);
   await apiDelete('/api/productos/'+id);renderProductos();toast('Eliminado');
@@ -807,7 +807,7 @@ function renderMovLineas(){
 }
 function addMovRow(){movLineas.push({});renderMovLineas();}
 function removeMovRow(i){movLineas.splice(i,1);renderMovLineas();}
-function confirmarMovimiento(){
+async function confirmarMovimiento(){
   const desde=document.getElementById('mov-desde').value;
   const hasta=document.getElementById('mov-hasta').value;
   const fecha=document.getElementById('mov-fecha').value;
@@ -879,7 +879,7 @@ function renderAlbaranResult(d){
   calcAlbTotal();
 }
 
-function confirmarAlbaran(){
+async function confirmarAlbaran(){
   const proveedor=document.getElementById('alb-proveedor').value.trim();
   const numero=document.getElementById('alb-numero').value.trim();
   const fechaInput=document.getElementById('alb-fecha').value;
@@ -944,7 +944,7 @@ function renderEntLineas(){
 }
 function addEntradaRow(){entLineas.push({});renderEntLineas();}
 function removeEntLinea(i){entLineas.splice(i,1);renderEntLineas();}
-function confirmarEntrada(){
+async function confirmarEntrada(){
   const prov=document.getElementById('ent-prov').value.trim();
   const albNum=document.getElementById('ent-albaran').value.trim();
   const fecha=document.getElementById('ent-fecha').value;
@@ -1044,8 +1044,8 @@ function exportarPedido(){
 function renderProveedores(){
   document.getElementById('prov-table').innerHTML=state.proveedores.map(pv=>{const n=state.productos.filter(p=>p.proveedor===pv.nombre).length;return'<tr><td style="font-weight:500">'+pv.nombre+'</td><td style="color:var(--text3)">'+( pv.contacto||'—')+'</td><td style="font-family:var(--mono);font-size:12px">'+(pv.telefono||'—')+'</td><td style="color:var(--text3);font-size:12px">'+(pv.email||'—')+'</td><td><span class="badge badge-info">'+pv.cat+'</span></td><td style="font-family:var(--mono)">'+n+'</td><td><button class="btn btn-sm btn-danger" onclick="eliminarProveedor(\''+pv.id+'\')"><i class="ti ti-trash"></i></button></td></tr>';}).join('');
 }
-function guardarProveedor(){const nombre=document.getElementById('pv-nombre').value.trim();if(!nombre){toast('Nombre obligatorio','error');return;}state.proveedores.push({id:uid(),nombre,contacto:document.getElementById('pv-contacto').value.trim(),telefono:document.getElementById('pv-telefono').value.trim(),email:document.getElementById('pv-email').value.trim(),cat:document.getElementById('pv-cat').value});saveState();closeModal('modal-proveedor');renderProveedores();toast('Proveedor añadido');}
-function eliminarProveedor(id){if(!confirm('¿Eliminar?'))return;state.proveedores=state.proveedores.filter(p=>p.id!==id);saveState();renderProveedores();toast('Eliminado');}
+async function guardarProveedor(){const nombre=document.getElementById('pv-nombre').value.trim();if(!nombre){toast('Nombre obligatorio','error');return;}state.proveedores.push({id:uid(),nombre,contacto:document.getElementById('pv-contacto').value.trim(),telefono:document.getElementById('pv-telefono').value.trim(),email:document.getElementById('pv-email').value.trim(),cat:document.getElementById('pv-cat').value});saveState();closeModal('modal-proveedor');renderProveedores();toast('Proveedor añadido');}
+async function eliminarProveedor(id){if(!confirm('¿Eliminar?'))return;state.proveedores=state.proveedores.filter(p=>p.id!==id);saveState();renderProveedores();toast('Eliminado');}
 
 // PRECIOS
 function renderPrecios(){
@@ -1145,7 +1145,7 @@ function autoRellenarPedido() {
   toast('Pedido rellenado con '+bajos.length+' productos bajo mínimo');
 }
 
-function guardarPedido() {
+async function guardarPedido() {
   const proveedor = document.getElementById('np2-proveedor')?.value.trim();
   if(!proveedor){toast('Indica el proveedor','error');return;}
   const fecha = document.getElementById('np2-fecha')?.value;
@@ -1220,7 +1220,7 @@ function verPedido(id) {
   openModal('modal-ver-pedido');
 }
 
-function recibirPedido(id) {
+async function recibirPedido(id) {
   const p = state.pedidos?.find(x=>x.id===id);
   if(!p) return;
   const fecha = new Date().toISOString().split('T')[0];
@@ -1306,7 +1306,7 @@ function actualizarResumenInv() {
   if(el) el.textContent = n>0 ? n+' productos contados · Diferencia total: '+fmt(totalDiff)+' · Valoración: '+fmt(totalVal)+' €' : '';
 }
 
-function guardarInventario() {
+async function guardarInventario() {
   const n = Object.keys(invRecuentos).length;
   if(!n){toast('No has introducido ningún recuento','error');return;}
   if(!state.inventarios) state.inventarios = [];
@@ -1363,7 +1363,7 @@ function imprimirInventario() {
 }
 
 // CONFIG
-function saveConfig(){state.config.hotel=document.getElementById('cfg-hotel').value;state.config.cadDias=parseInt(document.getElementById('cfg-cad-dias').value)||7;state.config.usuario=document.getElementById('cfg-usuario').value;await apiPost('/api/config',{hotel:state.config.hotel,cad_dias:state.config.cadDias,usuario:state.config.usuario});toast('Configuración guardada');}
+async function saveConfig(){state.config.hotel=document.getElementById('cfg-hotel').value;state.config.cadDias=parseInt(document.getElementById('cfg-cad-dias').value)||7;state.config.usuario=document.getElementById('cfg-usuario').value;await apiPost('/api/config',{hotel:state.config.hotel,cad_dias:state.config.cadDias,usuario:state.config.usuario});toast('Configuración guardada');}
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='economato_backup.json';a.click();}
 function clearData(){localStorage.removeItem('economato_v3');location.reload();}
 
