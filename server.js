@@ -279,7 +279,9 @@ app.post('/api/leer-albaran', upload.single('albaran'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No se recibió archivo' });
     const base64 = req.file.buffer.toString('base64');
-    const mediaType = req.file.mimetype;
+    let mediaType = req.file.mimetype;
+    if (mediaType === 'image/jpg') mediaType = 'image/jpeg';
+    if (!['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType)) mediaType = 'image/jpeg';
 
     // Get existing products for matching
     const prodsResult = await pool.query('SELECT id, codigo, nombre, iva, precio_fijo FROM productos ORDER BY nombre');
